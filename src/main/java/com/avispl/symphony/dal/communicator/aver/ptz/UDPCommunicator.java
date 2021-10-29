@@ -421,7 +421,11 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		byte[] buffer = new byte[this.bufferLength];
 		DatagramPacket response = new DatagramPacket(buffer, buffer.length);
 		this.datagramSocket.receive(response);
-		return response.getData();
+
+		// Get the exact length of data from server
+		buffer = new byte[response.getLength()];
+		System.arraycopy(response.getData(), response.getOffset(), buffer, 0, response.getLength());
+		return buffer;
 	}
 
 	protected boolean doneReading(String command, String response) throws CommandFailureException {
