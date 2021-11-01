@@ -39,14 +39,8 @@ public class UDPCommunicatorTest {
 	@Test
 	public void testSendData() throws Exception {
 		byte[] data = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x00, 0x02, (byte) 0xFF };
+		byte[] response = udpCommunicator.send(data);
 
-		try {
-			byte[] response = udpCommunicator.send(data);
-			Assert.assertArrayEquals(data, response);
-		} catch (Exception e) {
-			System.out.println(e);
-			throw e;
-		}
-
+		Assert.assertArrayEquals(data, response);
 	}
 }
