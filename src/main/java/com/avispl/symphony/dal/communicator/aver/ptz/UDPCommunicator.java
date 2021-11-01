@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2015-2021 AVI-SPL, Inc. All Rights Reserved.
+ */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
 import java.io.IOException;
@@ -17,8 +20,16 @@ import com.avispl.symphony.dal.BaseDevice;
 import com.avispl.symphony.dal.communicator.Communicator;
 import com.avispl.symphony.dal.communicator.ConnectionStatus;
 
+/**
+ * An implementation of UDPCommunicator to provide communication and interaction with AVER PTZ Camera.
+ *
+ * @author Harry
+ * @version 1.0
+ * @since 1.0
+ */
 public class UDPCommunicator extends BaseDevice implements Communicator {
 	protected static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+	static final String ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT = "Cannot change properties after init() was called";
 
 	private DatagramSocket datagramSocket;
 	private int port;
@@ -54,7 +65,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	 */
 	public void setTimeout(int timeout) {
 		if (this.isInitialized()) {
-			throw new IllegalStateException("Cannot change properties after init() was called");
+			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
 		} else {
 			this.timeout = timeout;
 		}
@@ -76,7 +87,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	 */
 	public void setBufferLength(int bufferLength) {
 		if (this.isInitialized()) {
-			throw new IllegalStateException("Cannot change properties after init() was called");
+			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
 		} else {
 			this.bufferLength = bufferLength;
 		}
@@ -98,7 +109,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	 */
 	public void setPort(int port) {
 		if (this.isInitialized()) {
-			throw new IllegalStateException("Cannot change properties after init() was called");
+			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
 		} else {
 			this.port = port;
 		}
@@ -120,7 +131,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	 */
 	protected void setCommandErrorList(List<String> commandErrorList) {
 		if (this.isInitialized()) {
-			throw new IllegalStateException("Cannot change properties after init() was called");
+			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
 		} else {
 			this.commandErrorList = commandErrorList;
 		}
@@ -142,7 +153,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	 */
 	protected void setCommandSuccessList(List<String> commandSuccessList) {
 		if (this.isInitialized()) {
-			throw new IllegalStateException("Cannot change properties after init() was called");
+			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
 		} else {
 			this.commandSuccessList = commandSuccessList;
 		}
@@ -155,34 +166,26 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	public void connect() {
 		if (!this.isInitialized()) {
 			throw new IllegalStateException("UDPCommunicator cannot be used before init() is called");
-		} else {
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("Connecting to: " + this.host + " port: " + this.port);
-			}
-
-			Lock writeLock = this.lock.writeLock();
-			writeLock.lock();
-
-			try {
-				if (!this.isChannelConnected()) {
-					this.createChannel();
-					this.status.setLastTimestamp(System.currentTimeMillis());
-					this.status.setConnectionState(ConnectionState.Connected);
-					this.status.setLastError(null);
-				}
-			} catch (Exception ex) {
-				if (this.logger.isErrorEnabled()) {
-					this.logger.error("Error connecting to: " + this.host + " port: " + this.port, ex);
-				}
-
-				this.status.setLastError(ex);
-				this.status.setConnectionState(ConnectionState.Failed);
-				this.destroyChannel();
-				throw ex;
-			} finally {
-				writeLock.unlock();
-			}
 		}
+
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace("Connecting to: " + this.host + " port: " + this.port);
+		}
+
+		Lock writeLock = this.lock.writeLock();
+		writeLock.lock();
+
+		try {
+			if (!this.isChannelConnected()) {
+				this.createChannel();
+				this.status.setLastTimestamp(System.currentTimeMillis());
+				this.status.setConnectionState(ConnectionState.Connected);
+				this.status.setLastError(null);
+			}
+		} finally {
+			writeLock.unlock();
+		}
+
 	}
 
 	/**
@@ -213,14 +216,14 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		Lock readLock = this.lock.readLock();
 		readLock.lock();
 
-		ConnectionStatus status;
+		ConnectionStatus currentStatus;
 		try {
-			status = this.status.copyOf();
+			currentStatus = this.status.copyOf();
 		} finally {
 			readLock.unlock();
 		}
 
-		return status;
+		return currentStatus;
 	}
 
 	/**
@@ -237,6 +240,9 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		} catch (IOException ex) {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("Error create UDP socket channel", ex);
+				this.status.setLastError(ex);
+				this.status.setConnectionState(ConnectionState.Failed);
+				this.destroyChannel();
 			}
 		}
 	}
@@ -277,25 +283,27 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	protected byte[] send(byte[] data) throws Exception {
 		if (!this.isInitialized()) {
 			throw new IllegalStateException("ShellCommunicator cannot be used before init() is called");
-		} else if (null == data) {
-			throw new IllegalArgumentException("Send data is null");
-		} else {
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("Sending command: " + getHexByteString(data) + " to: " + this.host + " port: " + this.port);
-			}
-
-			Lock writeLock = this.lock.writeLock();
-			writeLock.lock();
-
-			byte[] response;
-			try {
-				response = this.send(data, true);
-			} finally {
-				writeLock.unlock();
-			}
-
-			return response;
 		}
+
+		if (null == data) {
+			throw new IllegalArgumentException("Send data is null");
+		}
+
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace("Sending command: " + getHexByteString(data) + " to: " + this.host + " port: " + this.port);
+		}
+
+		Lock writeLock = this.lock.writeLock();
+		writeLock.lock();
+
+		byte[] response;
+		try {
+			response = this.send(data, true);
+		} finally {
+			writeLock.unlock();
+		}
+
+		return response;
 	}
 
 	/**
@@ -402,18 +410,18 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		}
 	}
 
-	private byte[] internalSend(byte[] outputData) throws Exception {
+	private byte[] internalSend(byte[] outputData) throws IOException {
 		DatagramPacket request = new DatagramPacket(outputData, outputData.length, this.address, this.port);
 		this.write(request);
 
 		return this.read(outputData);
 	}
 
-	private void write(DatagramPacket request) throws Exception {
+	private void write(DatagramPacket request) throws IOException {
 		this.datagramSocket.send(request);
 	}
 
-	protected byte[] read(byte[] command) throws Exception {
+	protected byte[] read(byte[] command) throws IOException {
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("DEBUG - UDP Communicator reading after command text \"" + getHexByteString(command) + "\" was sent to host " + this.host);
 		}
