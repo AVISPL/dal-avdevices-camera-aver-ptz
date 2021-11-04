@@ -28,19 +28,19 @@ import com.avispl.symphony.dal.communicator.ConnectionStatus;
  * @since 1.0
  */
 public class UDPCommunicator extends BaseDevice implements Communicator {
-	protected static final char[] hexArray = "0123456789ABCDEF".toCharArray();
-	static final String ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT = "Cannot change properties after init() was called";
-
+	private static final String ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT = "Cannot change properties after init() was called";
 	private DatagramSocket datagramSocket;
-	private int port;
 	private InetAddress address;
-	private int timeout = 4000;
-	private int bufferLength = 24;
+	private int port;
 	private List<String> commandErrorList;
 	private List<String> commandSuccessList;
-
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 	private final ConnectionStatus status = new ConnectionStatus();
+	private int timeout = 4000;
+	private int bufferLength = 24;
+	protected String login;
+	protected String password;
+	protected static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
 	/**
 	 * Empty constructor
@@ -112,6 +112,50 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
 		} else {
 			this.port = port;
+		}
+	}
+
+	/**
+	 * This method returns the login info
+	 *
+	 * @return String This return the current login info
+	 */
+	public String getLogin() {
+		return this.login;
+	}
+
+	/**
+	 * This method is used set the login info
+	 *
+	 * @param login This is current login info to set
+	 */
+	public void setLogin(String login) {
+		if (this.isInitialized()) {
+			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
+		} else {
+			this.login = login;
+		}
+	}
+
+	/**
+	 * This method returns the password info
+	 *
+	 * @return String This return the current password info
+	 */
+	public String getPassword() {
+		return this.password;
+	}
+
+	/**
+	 * This method is used set the password info
+	 *
+	 * @param password This is current password info to set
+	 */
+	public void setPassword(String password) {
+		if (this.isInitialized()) {
+			throw new IllegalStateException(ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT);
+		} else {
+			this.password = password;
 		}
 	}
 
