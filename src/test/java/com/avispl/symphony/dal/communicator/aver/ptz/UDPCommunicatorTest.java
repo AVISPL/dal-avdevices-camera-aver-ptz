@@ -22,14 +22,14 @@ import com.avispl.symphony.dal.communicator.aver.ptz.mock.UDPServer;
  */
 public class UDPCommunicatorTest {
 	UDPCommunicator udpCommunicator;
-	UDPServer UDPServer;
+	UDPServer udpServer;
 
 	@Before
 	public void setUp() throws Exception {
-		UDPServer = new UDPServer();
-		UDPServer.setPort(52381);
-		UDPServer.init();
-		UDPServer.start();
+		udpServer = new UDPServer();
+		udpServer.setPort(52381);
+		udpServer.init();
+		udpServer.start();
 
 		udpCommunicator = new UDPCommunicator();
 		udpCommunicator.setHost("localhost");
@@ -43,7 +43,7 @@ public class UDPCommunicatorTest {
 	@After
 	public void destroy() {
 		udpCommunicator.destroy();
-		UDPServer.destroy();
+		udpServer.destroy();
 	}
 
 	/**
