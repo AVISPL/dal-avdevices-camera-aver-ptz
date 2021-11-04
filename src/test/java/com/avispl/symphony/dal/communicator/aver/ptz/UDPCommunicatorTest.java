@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 AVI-SPL, Inc. All Rights Reserved.
+ * Copyright (c) 2021 AVI-SPL, Inc. All Rights Reserved.
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
@@ -10,15 +10,28 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.avispl.symphony.dal.communicator.aver.ptz.mock.UDPServer;
+
 /**
  * Unit test for UDP Communicator
  * Send and retrieve data success
+ *
+ * @author Hieu.LeMinh
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class UDPCommunicatorTest {
-	UDPCommunicator udpCommunicator = new UDPCommunicator();
+	UDPCommunicator udpCommunicator;
+	UDPServer UDPServer;
 
 	@Before
 	public void setUp() throws Exception {
+		UDPServer = new UDPServer();
+		UDPServer.setPort(52381);
+		UDPServer.init();
+		UDPServer.start();
+
+		udpCommunicator = new UDPCommunicator();
 		udpCommunicator.setHost("localhost");
 		udpCommunicator.setPort(52381);
 		udpCommunicator.setCommandErrorList(Collections.singletonList(""));
@@ -30,11 +43,12 @@ public class UDPCommunicatorTest {
 	@After
 	public void destroy() {
 		udpCommunicator.destroy();
+		UDPServer.destroy();
 	}
 
 	/**
 	 * Test UDPCommunicator#send success
-	 * Expect send and receive the same data from dummy server
+	 * Expect send and receive the same data from UDP server
 	 */
 	@Test
 	public void testSendData() throws Exception {
