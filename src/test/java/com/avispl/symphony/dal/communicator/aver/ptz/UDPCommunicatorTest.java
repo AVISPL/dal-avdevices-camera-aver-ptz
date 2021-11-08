@@ -16,9 +16,9 @@ import com.avispl.symphony.dal.communicator.aver.ptz.mock.UDPServer;
  * Unit test for UDP Communicator
  * Send and retrieve data success
  *
- * @author Hieu.LeMinh
- * @version 1.0.0
- * @since 1.0.0
+ * @author Harry
+ * @version 1.0
+ * @since 1.0
  */
 public class UDPCommunicatorTest {
 	UDPCommunicator udpCommunicator;
