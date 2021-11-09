@@ -4,7 +4,7 @@
 package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload;
 
 /**
- * This class is used to define prefix
+ * This class is used to define prefix of payload
  *
  * @author Harry
  * @version 1.0
@@ -17,7 +17,6 @@ public enum Prefix {
 	private final byte code;
 
 	Prefix(byte code) {
-
 		this.code = code;
 	}
 

@@ -22,13 +22,8 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.Prefix;
  * @since 1.0
  */
 public class AverPTZUtils {
-
-	private AverPTZUtils() {
-		throw new IllegalStateException("Utility class");
-	}
-
 	/**
-	 * This method is used to build a string to be sent according to Aver Protocol
+	 * This method is used to build a command to be sent according to Aver Protocol
 	 *
 	 * @param cameraID This is int value representing the camera ID
 	 * @param sequenceNumber This is the int value representing the sequence number of command to be sent
@@ -37,9 +32,9 @@ public class AverPTZUtils {
 	 * @param category This is  the byte value representing the category code
 	 * @param command This is the byte array representing the command to be sent
 	 * @param param This is the byte array representing the parameter values to be sent
-	 * @return byte[] This returns the string to be sent to the display
+	 * @return byte[] This returns the array to be sent to the display
 	 */
-	public static byte[] buildSendString(int cameraID, int sequenceNumber,byte payloadType, byte commandType, byte category, byte[] command, byte... param) {
+	public static byte[] buildSendPacket(int cameraID, int sequenceNumber, byte payloadType, byte commandType, byte category, byte[] command, byte... param) {
 		List<Byte> bytes = new ArrayList<>();
 
 		// Add payload type
@@ -47,14 +42,14 @@ public class AverPTZUtils {
 		bytes.add(payloadType);
 
 		// Build payload string
-		byte[] payload = buildPayloadString(cameraID, commandType, category, command, param);
+		byte[] payload = buildPayload(cameraID, commandType, category, command, param);
 
 		// Add payload length
 		bytes.add((byte) 0x00);
 		bytes.add((byte) (payload.length));
 
 		// Add sequence number
-		byte[] sequence = intToByteArray(sequenceNumber);
+		byte[] sequence = convertIntToByteArray(sequenceNumber);
 		for (byte b : sequence) {
 			bytes.add(b);
 		}
@@ -79,9 +74,9 @@ public class AverPTZUtils {
 	 * @param category This is the byte value representing the category code
 	 * @param command This is the byte array representing the command to be sent
 	 * @param param This is the byte array representing the parameter values to be sent
-	 * @return byte[] This returns the payload string to be sent to the display
+	 * @return byte[] This returns the payload packet to be sent to the display
 	 */
-	public static byte[] buildPayloadString(int cameraID, byte commandType, byte category, byte[] command, byte... param) {
+	public static byte[] buildPayload(int cameraID, byte commandType, byte category, byte[] command, byte... param) {
 		List<Byte> bytes = new ArrayList<>();
 
 		bytes.add((byte) (Prefix.COMMAND.getPrefixCode() + cameraID));
@@ -116,7 +111,7 @@ public class AverPTZUtils {
 	 * @param number This is int value representing the number to be converted from int to byte array
 	 * @return byte[] This returns the byte array
 	 */
-	public static byte[] intToByteArray(int number) {
+	public static byte[] convertIntToByteArray(int number) {
 		return ByteBuffer.allocate(4).putInt(number).array();
 	}
 
@@ -126,7 +121,7 @@ public class AverPTZUtils {
 	 * @param number This is byte value representing the number to be converted from 1 byte to array of 2 bytes
 	 * @return byte[] This returns the array of 2 bytes
 	 */
-	static byte[] oneByteToTwoBytes(byte number) {
+	public static byte[] convertOneByteNumberToTwoBytesArray(byte number) {
 		byte[] byteArray = new byte[2];
 		byteArray[0] = (byte) (number / 16);
 		byteArray[1] = (byte) (number % 16);
