@@ -11,6 +11,10 @@ package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param;
  * @since 1.0
  */
 public enum PresetControl {
+	/**
+	 * Control name: SAVE, RECALL
+	 * Extended property name: Save, Load
+	 */
 	SET("Save", (byte) 0x01),
 	RECALL("Load", (byte) 0x02);
 
