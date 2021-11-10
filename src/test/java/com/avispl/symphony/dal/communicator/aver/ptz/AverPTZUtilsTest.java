@@ -100,11 +100,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketFocusFar() {
-		byte[] expectedPacketFocusFar = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x08, 0x02, (byte) 0xFF };
 		byte[] actualPacketFocusFar = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.FOCUS.getCode(), FocusControl.FAR.getCode());
 
-		assertArrayEquals(expectedPacketFocusFar, actualPacketFocusFar);
+		assertArrayEquals(SendPacket.FOCUS_FAR.getCode(), actualPacketFocusFar);
 	}
 
 	/**
@@ -790,5 +789,17 @@ public class AverPTZUtilsTest {
 				Command.SLOW_PAN_TILT.getCode());
 
 		assertArrayEquals(SendPacket.SLOW_PAN_TILT_INQ.getCode(), actualPacketSlowPanTiltInq);
+	}
+
+	/**
+	 * Test AverPTZUtils#buildSendString success
+	 * Expect build an inquiry command for last preset recalled which match expected string
+	 */
+	@Test
+	public void testBuildSendPacketPresetRecallInq() {
+		byte[] actualPacketSlowPanTiltInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
+				Command.PRESET.getCode());
+
+		assertArrayEquals(SendPacket.LAST_PRESET_RECALLED.getCode(), actualPacketSlowPanTiltInq);
 	}
 }
