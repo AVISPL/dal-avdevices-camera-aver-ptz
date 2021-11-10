@@ -4,7 +4,7 @@
 package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload;
 
 /**
- * This class is used to define prefix of payload
+ * This class is used to define prefix
  *
  * @author Harry
  * @version 1.0
