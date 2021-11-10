@@ -3,16 +3,12 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.ReplyPacket;
-import com.avispl.symphony.dal.communicator.aver.ptz.enums.ReplyStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.Command;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.CommandType;
 
@@ -32,20 +28,8 @@ public class AverPTZCommunicatorTest {
 		averPTZCommunicator = new AverPTZCommunicator();
 		averPTZCommunicator.setHost("***REMOVED***");
 		averPTZCommunicator.setPort(52381);
-
-		averPTZCommunicator.setCommandSuccessList(Collections.singletonList(UDPCommunicator.getHexByteString(ReplyStatus.COMPLETION.getCode())));
-
-		averPTZCommunicator.setCommandErrorList(Arrays.asList(
-				UDPCommunicator.getHexByteString(ReplyStatus.SYNTAX_ERROR_CONTROL.getCode()),
-				UDPCommunicator.getHexByteString(ReplyStatus.SYNTAX_ERROR_INQUIRY.getCode()),
-				UDPCommunicator.getHexByteString(ReplyStatus.COMMAND_BUFFER_FULL_CONTROL.getCode()),
-				UDPCommunicator.getHexByteString(ReplyStatus.COMMAND_BUFFER_FULL_INQUIRY.getCode()),
-				UDPCommunicator.getHexByteString(ReplyStatus.NO_SOCKET_CONTROL.getCode()),
-				UDPCommunicator.getHexByteString(ReplyStatus.NO_SOCKET_INQUIRY.getCode()),
-				UDPCommunicator.getHexByteString(ReplyStatus.COMMAND_NOT_EXECUTABLE_CONTROL.getCode()),
-				UDPCommunicator.getHexByteString(ReplyStatus.COMMAND_NOT_EXECUTABLE_INQUIRY.getCode())
-		));
-
+		averPTZCommunicator.setLogin("root");
+		averPTZCommunicator.setPassword("1234");
 		averPTZCommunicator.init();
 		averPTZCommunicator.connect();
 	}
@@ -197,6 +181,26 @@ public class AverPTZCommunicatorTest {
 
 	/**
 	 * Test AverPTZCommunicator#digestResponse success
+	 * Expect RGain value is 33
+	 */
+	@Test
+	public void testDigestResponseInquiryCommandRGainValue() {
+		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.RGAIN.getCode(), 1, CommandType.INQUIRY, Command.RGAIN.getName());
+		Assert.assertEquals(33, value);
+	}
+
+	/**
+	 * Test AverPTZCommunicator#digestResponse success
+	 * Expect BGain value is 52
+	 */
+	@Test
+	public void testDigestResponseInquiryCommandBGainValue() {
+		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.BGAIN.getCode(), 1, CommandType.INQUIRY, Command.BGAIN.getName());
+		Assert.assertEquals(52, value);
+	}
+
+	/**
+	 * Test AverPTZCommunicator#digestResponse success
 	 * Expect gain limit level value is 8
 	 */
 	@Test
@@ -213,5 +217,15 @@ public class AverPTZCommunicatorTest {
 	public void testDigestResponseInquiryCommandExposureValue() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.EXPOSURE_VALUE.getCode(), 1, CommandType.INQUIRY, Command.EXP_COMP_DIRECT.getName());
 		Assert.assertEquals(9, value);
+	}
+
+	/**
+	 * Test AverPTZCommunicator#digestResponse success
+	 * Expect last preset recalled value is 2
+	 */
+	@Test
+	public void testDigestResponseInquiryCommandLastPresetRecalled() {
+		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.LAST_PRESET_RECALLED.getCode(), 1, CommandType.INQUIRY, Command.PRESET.getName());
+		Assert.assertEquals(2, value);
 	}
 }
