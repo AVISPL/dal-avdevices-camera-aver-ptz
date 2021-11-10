@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.SendPacket;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.Category;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.PayloadType;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.Command;
@@ -20,7 +21,7 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.AEMode;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.BGainControl;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.BacklightStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.FocusControl;
-import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.FocusStatus;
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.FocusMode;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.PanTiltDrive;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.PowerStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.PresetControl;
@@ -51,11 +52,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketPowerOn() {
-		byte[] expectedPacketPowerOn = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x00, 0x02, (byte) 0xFF };
 		byte[] actualPacketPowerOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.POWER.getCode(), PowerStatus.ON.getCode());
 
-		assertArrayEquals(expectedPacketPowerOn, actualPacketPowerOn);
+		assertArrayEquals(SendPacket.POWER_ON.getCode(), actualPacketPowerOn);
 	}
 
 	/**
@@ -64,11 +64,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketPowerOff() {
-		byte[] expectedPacketPowerOff = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x00, 0x03, (byte) 0xFF };
 		byte[] actualPacketPowerOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.POWER.getCode(), PowerStatus.OFF.getCode());
 
-		assertArrayEquals(expectedPacketPowerOff, actualPacketPowerOff);
+		assertArrayEquals(SendPacket.POWER_OFF.getCode(), actualPacketPowerOff);
 	}
 
 	/**
@@ -77,11 +76,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketZoomTele() {
-		byte[] expectedPacketZoomTele = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x07, 0x02, (byte) 0xFF };
 		byte[] actualPacketZoomTele = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.ZOOM.getCode(), ZoomControl.TELE.getCode());
 
-		assertArrayEquals(expectedPacketZoomTele, actualPacketZoomTele);
+		assertArrayEquals(SendPacket.ZOOM_TELE.getCode(), actualPacketZoomTele);
 	}
 
 	/**
@@ -90,11 +88,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketZoomWide() {
-		byte[] expectedPacketZoomWide = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x07, 0x03, (byte) 0xFF };
 		byte[] actualPacketZoomWide = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.ZOOM.getCode(), ZoomControl.WIDE.getCode());
 
-		assertArrayEquals(expectedPacketZoomWide, actualPacketZoomWide);
+		assertArrayEquals(SendPacket.ZOOM_WIDE.getCode(), actualPacketZoomWide);
 	}
 
 	/**
@@ -116,11 +113,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketFocusNear() {
-		byte[] expectedPacketFocusNear = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x08, 0x03, (byte) 0xFF };
 		byte[] actualPacketFocusNear = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.FOCUS.getCode(), FocusControl.NEAR.getCode());
 
-		assertArrayEquals(expectedPacketFocusNear, actualPacketFocusNear);
+		assertArrayEquals(SendPacket.FOCUS_NEAR.getCode(), actualPacketFocusNear);
 	}
 
 	/**
@@ -129,10 +125,9 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketAutoFocus() {
-		byte[] expectedPacketFocusAutoFocus = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x38, 0x02, (byte) 0xFF };
 		byte[] actualPacketFocusAutoFocus = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
-				Command.FOCUS_MODE.getCode(), FocusStatus.AUTO.getCode());
-		assertArrayEquals(expectedPacketFocusAutoFocus, actualPacketFocusAutoFocus);
+				Command.FOCUS_MODE.getCode(), FocusMode.AUTO.getCode());
+		assertArrayEquals(SendPacket.FOCUS_AUTO_MODE.getCode(), actualPacketFocusAutoFocus);
 	}
 
 	/**
@@ -141,11 +136,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketManualFocus() {
-		byte[] expectedPacketFocusManualFocus = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x38, 0x03, (byte) 0xFF };
 		byte[] actualPacketFocusManualFocus = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
-				Command.FOCUS_MODE.getCode(), FocusStatus.MANUAL.getCode());
+				Command.FOCUS_MODE.getCode(), FocusMode.MANUAL.getCode());
 
-		assertArrayEquals(expectedPacketFocusManualFocus, actualPacketFocusManualFocus);
+		assertArrayEquals(SendPacket.FOCUS_MANUAL_MODE.getCode(), actualPacketFocusManualFocus);
 	}
 
 	/**
@@ -154,11 +148,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketFocusOnePush() {
-		byte[] expectedPacketFocusOnePush = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x18, 0x01, (byte) 0xFF };
 		byte[] actualPacketFocusOnePush = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.FOCUS_ONE_PUSH.getCode());
 
-		assertArrayEquals(expectedPacketFocusOnePush, actualPacketFocusOnePush);
+		assertArrayEquals(SendPacket.FOCUS_ONE_PUSH_MODE.getCode(), actualPacketFocusOnePush);
 	}
 
 	/**
@@ -167,11 +160,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketWBAutoMode() {
-		byte[] expectedPacketWBAuto = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x35, 0x00, (byte) 0xFF };
 		byte[] actualPacketWBAuto = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.AUTO.getCode());
 
-		assertArrayEquals(expectedPacketWBAuto, actualPacketWBAuto);
+		assertArrayEquals(SendPacket.WB_AUTO_MODE.getCode(), actualPacketWBAuto);
 	}
 
 	/**
@@ -180,11 +172,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketWBIndoorMode() {
-		byte[] expectedPacketWBIndoor = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x35, 0x01, (byte) 0xFF };
 		byte[] actualPacketWBIndoor = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.INDOOR.getCode());
 
-		assertArrayEquals(expectedPacketWBIndoor, actualPacketWBIndoor);
+		assertArrayEquals(SendPacket.WB_INDOOR_MODE.getCode(), actualPacketWBIndoor);
 	}
 
 	/**
@@ -193,11 +184,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketWBOutdoorMode() {
-		byte[] expectedPacketWBOutdoor = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x35, 0x02, (byte) 0xFF };
 		byte[] actualPacketWBOutdoor = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.OUTDOOR.getCode());
 
-		assertArrayEquals(expectedPacketWBOutdoor, actualPacketWBOutdoor);
+		assertArrayEquals(SendPacket.WB_OUTDOOR_MODE.getCode(), actualPacketWBOutdoor);
 	}
 
 	/**
@@ -206,11 +196,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketWBOnePushMode() {
-		byte[] expectedPacketWBOnePush = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x35, 0x03, (byte) 0xFF };
 		byte[] actualPacketWBOnePush = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.ONE_PUSH_WB.getCode());
 
-		assertArrayEquals(expectedPacketWBOnePush, actualPacketWBOnePush);
+		assertArrayEquals(SendPacket.WB_ONE_PUSH_MODE.getCode(), actualPacketWBOnePush);
 	}
 
 	/**
@@ -219,11 +208,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketWBManualMode() {
-		byte[] expectedPacketWBManual = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x35, 0x05, (byte) 0xFF };
 		byte[] actualPacketWBManual = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.MANUAL.getCode());
 
-		assertArrayEquals(expectedPacketWBManual, actualPacketWBManual);
+		assertArrayEquals(SendPacket.WB_MANUAL_MODE.getCode(), actualPacketWBManual);
 	}
 
 	/**
@@ -232,11 +220,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketWBOnePushTrigger() {
-		byte[] expectedPacketWBOnePushTrigger = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x10, 0x05, (byte) 0xFF };
 		byte[] actualPacketWBOnePushTrigger = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.WB_ONE_PUSH_TRIGGER.getCode());
 
-		assertArrayEquals(expectedPacketWBOnePushTrigger, actualPacketWBOnePushTrigger);
+		assertArrayEquals(SendPacket.WB_ONE_PUSH_TRIGGER.getCode(), actualPacketWBOnePushTrigger);
 	}
 
 	/**
@@ -245,11 +232,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketRGainUp() {
-		byte[] expectedPacketRGainUp = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x03, 0x02, (byte) 0xFF };
 		byte[] actualPacketRGainUp = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.RGAIN.getCode(), RGainControl.UP.getCode());
 
-		assertArrayEquals(expectedPacketRGainUp, actualPacketRGainUp);
+		assertArrayEquals(SendPacket.RGAIN_UP.getCode(), actualPacketRGainUp);
 	}
 
 	/**
@@ -258,11 +244,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketRGainDown() {
-		byte[] expectedPacketRGainDown = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x03, 0x03, (byte) 0xFF };
 		byte[] actualPacketRGainDown = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.RGAIN.getCode(), RGainControl.DOWN.getCode());
 
-		assertArrayEquals(expectedPacketRGainDown, actualPacketRGainDown);
+		assertArrayEquals(SendPacket.RGAIN_DOWN.getCode(), actualPacketRGainDown);
 	}
 
 	/**
@@ -271,11 +256,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketBGainUp() {
-		byte[] expectedPacketBGainUp = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x04, 0x02, (byte) 0xFF };
 		byte[] actualPacketBGainUp = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.BGAIN.getCode(), BGainControl.UP.getCode());
 
-		assertArrayEquals(expectedPacketBGainUp, actualPacketBGainUp);
+		assertArrayEquals(SendPacket.BGAIN_UP.getCode(), actualPacketBGainUp);
 	}
 
 	/**
@@ -284,11 +268,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketBGainDown() {
-		byte[] expectedPacketBGainDown = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x04, 0x03, (byte) 0xFF };
 		byte[] actualPacketBGainDown = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.BGAIN.getCode(), BGainControl.DOWN.getCode());
 
-		assertArrayEquals(expectedPacketBGainDown, actualPacketBGainDown);
+		assertArrayEquals(SendPacket.BGAIN_DOWN.getCode(), actualPacketBGainDown);
 	}
 
 	/**
@@ -297,11 +280,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketAEFullAutoMode() {
-		byte[] expectedPacketAEFullAuto = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x39, 0x00, (byte) 0xFF };
 		byte[] actualPacketAEFullAuto = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode());
 
-		assertArrayEquals(expectedPacketAEFullAuto, actualPacketAEFullAuto);
+		assertArrayEquals(SendPacket.AE_FULL_AUTO_MODE.getCode(), actualPacketAEFullAuto);
 	}
 
 	/**
@@ -310,11 +292,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketAEManualMode() {
-		byte[] expectedPacketAEManual = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x39, 0x03, (byte) 0xFF };
 		byte[] actualPacketAEManual = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.MANUAL.getCode());
 
-		assertArrayEquals(expectedPacketAEManual, actualPacketAEManual);
+		assertArrayEquals(SendPacket.AE_MANUAL_MODE.getCode(), actualPacketAEManual);
 	}
 
 	/**
@@ -323,11 +304,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketAEShutterPriorityMode() {
-		byte[] expectedPacketAEShutterPriority = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x39, 0x0A, (byte) 0xFF };
 		byte[] actualPacketAEShutterPriority = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.SHUTTER_PRIORITY.getCode());
 
-		assertArrayEquals(expectedPacketAEShutterPriority, actualPacketAEShutterPriority);
+		assertArrayEquals(SendPacket.AE_SHUTTER_PRIORITY_MODE.getCode(), actualPacketAEShutterPriority);
 	}
 
 	/**
@@ -336,11 +316,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketAEIrisPriorityMode() {
-		byte[] expectedPacketAEIrisPriority = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x39, 0x0B, (byte) 0xFF };
 		byte[] actualPacketAEIrisPriority = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.IRIS_PRIORITY.getCode());
 
-		assertArrayEquals(expectedPacketAEIrisPriority, actualPacketAEIrisPriority);
+		assertArrayEquals(SendPacket.AE_IRIS_PRIORITY_MODE.getCode(), actualPacketAEIrisPriority);
 	}
 
 	/**
@@ -349,11 +328,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketSlowShutterOn() {
-		byte[] expectedPacketSlowShutterAuto = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x5A, 0x02, (byte) 0xFF };
-		byte[] actualPacketSlowShutterAuto = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
-				Command.SLOW_SHUTTER.getCode(), SlowShutterStatus.ON.getCode());
+		byte[] actualPacketSlowShutterOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
+				Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.ON.getCode());
 
-		assertArrayEquals(expectedPacketSlowShutterAuto, actualPacketSlowShutterAuto);
+		assertArrayEquals(SendPacket.SLOW_SHUTTER_ON.getCode(), actualPacketSlowShutterOn);
 	}
 
 	/**
@@ -362,11 +340,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketSlowShutterOff() {
-		byte[] expectedPacketSlowShutterManual = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x5A, 0x03, (byte) 0xFF };
-		byte[] actualPacketSlowShutterManual = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
-				Command.SLOW_SHUTTER.getCode(), SlowShutterStatus.OFF.getCode());
+		byte[] actualPacketSlowShutterOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
+				Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.OFF.getCode());
 
-		assertArrayEquals(expectedPacketSlowShutterManual, actualPacketSlowShutterManual);
+		assertArrayEquals(SendPacket.SLOW_SHUTTER_OFF.getCode(), actualPacketSlowShutterOff);
 	}
 
 	/**
@@ -377,11 +354,10 @@ public class AverPTZUtilsTest {
 	public void testBuildSendPacketShutterDirect() {
 		int shutterPosition = 40;
 
-		byte[] expectedPacketShutterDirect = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x4A, 0x00, 0x00, 0x02, 0x08, (byte) 0xFF };
 		byte[] actualPacketShutterDirect = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.SHUTTER_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) shutterPosition));
 
-		assertArrayEquals(expectedPacketShutterDirect, actualPacketShutterDirect);
+		assertArrayEquals(SendPacket.SHUTTER_DIRECT.getCode(), actualPacketShutterDirect);
 	}
 
 	/**
@@ -392,11 +368,10 @@ public class AverPTZUtilsTest {
 	public void testBuildSendPacketIrisDirect() {
 		int irisPosition = 9;
 
-		byte[] expectedPacketIrisDirect = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x4B, 0x00, 0x00, 0x00, 0x09, (byte) 0xFF };
 		byte[] actualPacketIrisDirect = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.IRIS_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) irisPosition));
 
-		assertArrayEquals(expectedPacketIrisDirect, actualPacketIrisDirect);
+		assertArrayEquals(SendPacket.IRIS_DIRECT.getCode(), actualPacketIrisDirect);
 	}
 
 	/**
@@ -407,11 +382,10 @@ public class AverPTZUtilsTest {
 	public void testBuildSendPacketGainDirect() {
 		int gainPosition = 23;
 
-		byte[] expectedPacketGainDirect = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x4C, 0x00, 0x00, 0x01, 0x07, (byte) 0xFF };
 		byte[] actualPacketGainDirect = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.GAIN_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) gainPosition));
 
-		assertArrayEquals(expectedPacketGainDirect, actualPacketGainDirect);
+		assertArrayEquals(SendPacket.GAIN_DIRECT.getCode(), actualPacketGainDirect);
 	}
 
 	/**
@@ -422,11 +396,10 @@ public class AverPTZUtilsTest {
 	public void testBuildSendPacketGainLimitDirect() {
 		int gainPosition = 23;
 
-		byte[] expectedPacketGainLimitDirect = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x2C, 0x17, (byte) 0xFF };
 		byte[] actualPacketGainLimitDirect = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.GAIN_LIMIT_DIRECT.getCode(), (byte) gainPosition);
 
-		assertArrayEquals(expectedPacketGainLimitDirect, actualPacketGainLimitDirect);
+		assertArrayEquals(SendPacket.GAIN_LIMIT_DIRECT.getCode(), actualPacketGainLimitDirect);
 	}
 
 	/**
@@ -437,11 +410,10 @@ public class AverPTZUtilsTest {
 	public void testBuildSendPacketExpCompDirect() {
 		int expComp = 5;
 
-		byte[] expectedPacketExpCompDirect = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x4E, 0x00, 0x00, 0x00, 0x05, (byte) 0xFF };
 		byte[] actualPacketExpCompDirect = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.EXP_COMP_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) expComp));
 
-		assertArrayEquals(expectedPacketExpCompDirect, actualPacketExpCompDirect);
+		assertArrayEquals(SendPacket.EXP_COMP_DIRECT.getCode(), actualPacketExpCompDirect);
 	}
 
 	/**
@@ -450,11 +422,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketBacklightOn() {
-		byte[] expectedPacketBackLightOn = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x33, 0x02, (byte) 0xFF };
 		byte[] actualPacketBackLightOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.BACKLIGHT.getCode(), BacklightStatus.ON.getCode());
 
-		assertArrayEquals(expectedPacketBackLightOn, actualPacketBackLightOn);
+		assertArrayEquals(SendPacket.BACKLIGHT_ON.getCode(), actualPacketBackLightOn);
 	}
 
 	/**
@@ -463,11 +434,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketBacklightOff() {
-		byte[] expectedPacketBackLightOff = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x33, 0x03, (byte) 0xFF };
 		byte[] actualPacketBackLightOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.BACKLIGHT.getCode(), BacklightStatus.OFF.getCode());
 
-		assertArrayEquals(expectedPacketBackLightOff, actualPacketBackLightOff);
+		assertArrayEquals(SendPacket.BACKLIGHT_OFF.getCode(), actualPacketBackLightOff);
 	}
 
 	/**
@@ -477,11 +447,10 @@ public class AverPTZUtilsTest {
 	@Test
 	public void testBuildSendPacketPresetSet() {
 		int preset = 2;
-		byte[] expectedPacketSetPreset = new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x3F, 0x01, (byte) preset, (byte) 0xFF };
 		byte[] actualPacketSetPreset = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.PRESET.getCode(), PresetControl.SET.getCode(), (byte) preset);
 
-		assertArrayEquals(expectedPacketSetPreset, actualPacketSetPreset);
+		assertArrayEquals(SendPacket.PRESET_SET.getCode(), actualPacketSetPreset);
 	}
 
 	/**
@@ -491,11 +460,10 @@ public class AverPTZUtilsTest {
 	@Test
 	public void testBuildSendPacketPresetRecall() {
 		int preset = 2;
-		byte[] expectedPacketLoadPreset = new byte[] { 0x01, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x3F, 0x02, (byte) preset, (byte) 0xFF };
 		byte[] actualPacketLoadPreset = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.CAMERA.getCode(),
 				Command.PRESET.getCode(), PresetControl.RECALL.getCode(), (byte) preset);
 
-		assertArrayEquals(expectedPacketLoadPreset, actualPacketLoadPreset);
+		assertArrayEquals(SendPacket.PRESET_RECALL.getCode(), actualPacketLoadPreset);
 	}
 
 	/**
@@ -504,11 +472,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketSlowPanTiltOn() {
-		byte[] expectedPacketSlowPanTiltOn = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x44, 0x02, (byte) 0xFF };
 		byte[] actualPacketSlowPanTiltOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.ON.getCode());
 
-		assertArrayEquals(expectedPacketSlowPanTiltOn, actualPacketSlowPanTiltOn);
+		assertArrayEquals(SendPacket.SLOW_PAN_TILT_ON.getCode(), actualPacketSlowPanTiltOn);
 	}
 
 	/**
@@ -517,11 +484,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketSlowPanTiltOff() {
-		byte[] expectedPacketSlowPanTiltOff = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x44, 0x03, (byte) 0xFF };
 		byte[] actualPacketSlowPanTiltOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.OFF.getCode());
 
-		assertArrayEquals(expectedPacketSlowPanTiltOff, actualPacketSlowPanTiltOff);
+		assertArrayEquals(SendPacket.SLOW_PAN_TILT_OFF.getCode(), actualPacketSlowPanTiltOff);
 	}
 
 	/**
@@ -534,11 +500,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.UP.getCode());
 
-		byte[] expectedPacketPanTiltUp = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x03, 0x01, (byte) 0xFF };
 		byte[] actualPacketPanTiltUp = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTiltUp, actualPacketPanTiltUp);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_UP.getCode(), actualPacketPanTiltUp);
 	}
 
 	/**
@@ -551,11 +516,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.DOWN.getCode());
 
-		byte[] expectedPacketPanTiltDown = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x03, 0x02, (byte) 0xFF };
 		byte[] actualPacketPanTiltDown = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTiltDown, actualPacketPanTiltDown);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_DOWN.getCode(), actualPacketPanTiltDown);
 	}
 
 	/**
@@ -568,11 +532,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.LEFT.getCode());
 
-		byte[] expectedPacketPanTiltLeft = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x01, 0x03, (byte) 0xFF };
 		byte[] actualPacketPanTiltLeft = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTiltLeft, actualPacketPanTiltLeft);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_LEFT.getCode(), actualPacketPanTiltLeft);
 	}
 
 	/**
@@ -585,11 +548,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.RIGHT.getCode());
 
-		byte[] expectedPacketPanTiltRight = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x02, 0x03, (byte) 0xFF };
 		byte[] actualPacketPanTiltRight = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTiltRight, actualPacketPanTiltRight);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_RIGHT.getCode(), actualPacketPanTiltRight);
 	}
 
 	/**
@@ -602,11 +564,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.DOWN_LEFT.getCode());
 
-		byte[] expectedPacketPanTilDownLeft = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x01, 0x02, (byte) 0xFF };
 		byte[] actualPacketPanTiltDownLeft = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTilDownLeft, actualPacketPanTiltDownLeft);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_DOWN_LEFT.getCode(), actualPacketPanTiltDownLeft);
 	}
 
 	/**
@@ -619,11 +580,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.DOWN_RIGHT.getCode());
 
-		byte[] expectedPacketPanTilDownRight = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x02, 0x02, (byte) 0xFF };
 		byte[] actualPacketPanTiltDownRight = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTilDownRight, actualPacketPanTiltDownRight);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_DOWN_RIGHT.getCode(), actualPacketPanTiltDownRight);
 	}
 
 	/**
@@ -636,11 +596,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.UP_LEFT.getCode());
 
-		byte[] expectedPacketPanTilUpLeft = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x01, 0x01, (byte) 0xFF };
 		byte[] actualPacketPanTiltUpLeft = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTilUpLeft, actualPacketPanTiltUpLeft);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_UP_LEFT.getCode(), actualPacketPanTiltUpLeft);
 	}
 
 	/**
@@ -653,11 +612,10 @@ public class AverPTZUtilsTest {
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
 		outputStream.write(PanTiltDrive.UP_RIGHT.getCode());
 
-		byte[] expectedPacketPanTilUpRight = new byte[] { 0x01, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x01, (byte) panSpeed, (byte) tiltSpeed, 0x02, 0x01, (byte) 0xFF };
 		byte[] actualPacketPanTiltUpRight = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
 
-		assertArrayEquals(expectedPacketPanTilUpRight, actualPacketPanTiltUpRight);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_UP_RIGHT.getCode(), actualPacketPanTiltUpRight);
 	}
 
 	/**
@@ -666,11 +624,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketPanTiltDriveHome() {
-		byte[] expectedPacketPanTiltHome = new byte[] { 0x01, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x06, 0x04, (byte) 0xFF };
 		byte[] actualPacketPanTiltHome = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), Category.PAN_TILTER.getCode(),
 				Command.PAN_TILT_HOME.getCode());
 
-		assertArrayEquals(expectedPacketPanTiltHome, actualPacketPanTiltHome);
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_HOME.getCode(), actualPacketPanTiltHome);
 	}
 
 	/**
@@ -679,10 +636,9 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketPowerStatusInq() {
-		byte[] expectedPacketPowerInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x00, (byte) 0xFF };
 		byte[] actualPacketPowerInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.POWER.getCode());
 
-		assertArrayEquals(expectedPacketPowerInq, actualPacketPowerInq);
+		assertArrayEquals(SendPacket.POWER_STATUS_INQ.getCode(), actualPacketPowerInq);
 	}
 
 	/**
@@ -691,10 +647,9 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketFocusStatusInq() {
-		byte[] expectedPacketFocusInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x38, (byte) 0xFF };
 		byte[] actualPacketFocusInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.FOCUS_MODE.getCode());
 
-		assertArrayEquals(expectedPacketFocusInq, actualPacketFocusInq);
+		assertArrayEquals(SendPacket.FOCUS_STATUS_INQ.getCode(), actualPacketFocusInq);
 	}
 
 	/**
@@ -703,10 +658,9 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketAEModeInq() {
-		byte[] expectedPacketAEModeInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x39, (byte) 0xFF };
 		byte[] actualPacketAEModeInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.AE_MODE.getCode());
 
-		assertArrayEquals(expectedPacketAEModeInq, actualPacketAEModeInq);
+		assertArrayEquals(SendPacket.AE_MODE_INQ.getCode(), actualPacketAEModeInq);
 	}
 
 	/**
@@ -715,11 +669,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketSlowShutterInq() {
-		byte[] expectedPacketSlowShutterInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x5A, (byte) 0xFF };
 		byte[] actualPacketSlowShutterInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
-				Command.SLOW_SHUTTER.getCode());
+				Command.AUTO_SLOW_SHUTTER.getCode());
 
-		assertArrayEquals(expectedPacketSlowShutterInq, actualPacketSlowShutterInq);
+		assertArrayEquals(SendPacket.SLOW_SHUTTER_STATUS_INQ.getCode(), actualPacketSlowShutterInq);
 	}
 
 	/**
@@ -728,11 +681,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketShutterPosInq() {
-		byte[] expectedPacketShutterPosInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x4A, (byte) 0xFF };
 		byte[] actualPacketShutterPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
 				new byte[] { Command.SHUTTER_DIRECT.getCode()[0] });
 
-		assertArrayEquals(expectedPacketShutterPosInq, actualPacketShutterPosInq);
+		assertArrayEquals(SendPacket.SHUTTER_POS_INQ.getCode(), actualPacketShutterPosInq);
 	}
 
 	/**
@@ -741,11 +693,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketIrisPosInq() {
-		byte[] expectedPacketIrisPosInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x4B, (byte) 0xFF };
 		byte[] actualPacketIrisPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
 				new byte[] { Command.IRIS_DIRECT.getCode()[0] });
 
-		assertArrayEquals(expectedPacketIrisPosInq, actualPacketIrisPosInq);
+		assertArrayEquals(SendPacket.IRIS_POS_INQ.getCode(), actualPacketIrisPosInq);
 	}
 
 	/**
@@ -754,11 +705,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketGainPosInq() {
-		byte[] expectedPacketGainPosInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x4C, (byte) 0xFF };
 		byte[] actualPacketGainPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
 				new byte[] { Command.GAIN_DIRECT.getCode()[0] });
 
-		assertArrayEquals(expectedPacketGainPosInq, actualPacketGainPosInq);
+		assertArrayEquals(SendPacket.GAIN_POS_INQ.getCode(), actualPacketGainPosInq);
 	}
 
 	/**
@@ -767,11 +717,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketGainLimitPosInq() {
-		byte[] expectedPacketAEGainPosInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x2C, (byte) 0xFF };
 		byte[] actualPacketAEGainPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
 				Command.GAIN_LIMIT_DIRECT.getCode());
 
-		assertArrayEquals(expectedPacketAEGainPosInq, actualPacketAEGainPosInq);
+		assertArrayEquals(SendPacket.GAIN_LIMIT_POS_INQ.getCode(), actualPacketAEGainPosInq);
 	}
 
 	/**
@@ -780,11 +729,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketExpCompPosInq() {
-		byte[] expectedPacketExpCompPosInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x4E, (byte) 0xFF };
 		byte[] actualPacketExpCompPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
 				new byte[] { Command.EXP_COMP_DIRECT.getCode()[0] });
 
-		assertArrayEquals(expectedPacketExpCompPosInq, actualPacketExpCompPosInq);
+		assertArrayEquals(SendPacket.EXP_COMP_POS_INQ.getCode(), actualPacketExpCompPosInq);
 	}
 
 	/**
@@ -793,11 +741,10 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketBacklightInq() {
-		byte[] expectedPacketBacklightInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x33, (byte) 0xFF };
 		byte[] actualPacketExpBacklightInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(),
 				Command.BACKLIGHT.getCode());
 
-		assertArrayEquals(expectedPacketBacklightInq, actualPacketExpBacklightInq);
+		assertArrayEquals(SendPacket.BACKLIGHT_INQ.getCode(), actualPacketExpBacklightInq);
 	}
 
 	/**
@@ -806,10 +753,31 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketWBModeInq() {
-		byte[] expectedPacketWBModeInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x35, (byte) 0xFF };
 		byte[] actualPacketWBModeInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.WB_MODE.getCode());
 
-		assertArrayEquals(expectedPacketWBModeInq, actualPacketWBModeInq);
+		assertArrayEquals(SendPacket.WB_MODE_INQ.getCode(), actualPacketWBModeInq);
+	}
+
+	/**
+	 * Test AverPTZUtils#buildSendString success
+	 * Expect build an inquiry command for RGain value which match expected string
+	 */
+	@Test
+	public void testBuildSendPacketRGainInq() {
+		byte[] actualPacketRGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.RGAIN_INQ.getCode());
+
+		assertArrayEquals(SendPacket.RGAIN_INQ.getCode(), actualPacketRGainInq);
+	}
+
+	/**
+	 * Test AverPTZUtils#buildSendString success
+	 * Expect build an inquiry command for BGain value which match expected string
+	 */
+	@Test
+	public void testBuildSendPacketBGainInq() {
+		byte[] actualPacketBGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.BGAIN_INQ.getCode());
+
+		assertArrayEquals(SendPacket.BGAIN_INQ.getCode(), actualPacketBGainInq);
 	}
 
 	/**
@@ -818,10 +786,9 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketSlowPanTiltInq() {
-		byte[] expectedPacketSlowPanTiltInq = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x06, 0x44, (byte) 0xFF };
 		byte[] actualPacketSlowPanTiltInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.PAN_TILTER.getCode(),
 				Command.SLOW_PAN_TILT.getCode());
 
-		assertArrayEquals(expectedPacketSlowPanTiltInq, actualPacketSlowPanTiltInq);
+		assertArrayEquals(SendPacket.SLOW_PAN_TILT_INQ.getCode(), actualPacketSlowPanTiltInq);
 	}
 }
