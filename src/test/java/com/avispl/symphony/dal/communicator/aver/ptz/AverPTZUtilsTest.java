@@ -120,7 +120,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendPacket success
-	 * Expect build a control command for auto-focus near which match expected packet
+	 * Expect build a control command for auto-focus which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketAutoFocus() {
@@ -131,7 +131,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendPacket success
-	 * Expect build a control command for manual-focus near which match expected packet
+	 * Expect build a control command for manual-focus which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketManualFocus() {
@@ -143,7 +143,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendPacket success
-	 * Expect build a control command for focus one push near which match expected packet
+	 * Expect build a control command for focus one push which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketFocusOnePush() {
@@ -631,7 +631,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for power status which match expected string
+	 * Expect build an inquiry command for power status which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketPowerStatusInq() {
@@ -642,7 +642,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for focus status which match expected string
+	 * Expect build an inquiry command for focus status which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketFocusStatusInq() {
@@ -653,7 +653,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for AE Mode which match expected string
+	 * Expect build an inquiry command for AE Mode which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketAEModeInq() {
@@ -664,7 +664,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for slow shutter which match expected string
+	 * Expect build an inquiry command for slow shutter which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketSlowShutterInq() {
@@ -676,7 +676,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for shutter position which match expected string
+	 * Expect build an inquiry command for shutter position which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketShutterPosInq() {
@@ -688,7 +688,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for iris position which match expected string
+	 * Expect build an inquiry command for iris position which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketIrisPosInq() {
@@ -700,7 +700,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for gain position which match expected string
+	 * Expect build an inquiry command for gain position which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketGainPosInq() {
@@ -712,7 +712,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for gain limit position which match expected string
+	 * Expect build an inquiry command for gain limit position which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketGainLimitPosInq() {
@@ -724,7 +724,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for exposure position which match expected string
+	 * Expect build an inquiry command for exposure position which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketExpCompPosInq() {
@@ -736,7 +736,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for backlight status which match expected string
+	 * Expect build an inquiry command for backlight status which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketBacklightInq() {
@@ -748,7 +748,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for WB mode which match expected string
+	 * Expect build an inquiry command for WB mode which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketWBModeInq() {
@@ -759,7 +759,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for RGain value which match expected string
+	 * Expect build an inquiry command for RGain value which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketRGainInq() {
@@ -770,7 +770,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for BGain value which match expected string
+	 * Expect build an inquiry command for BGain value which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketBGainInq() {
@@ -781,7 +781,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for slow pan-tilt status which match expected string
+	 * Expect build an inquiry command for slow pan-tilt status which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketSlowPanTiltInq() {
@@ -793,7 +793,7 @@ public class AverPTZUtilsTest {
 
 	/**
 	 * Test AverPTZUtils#buildSendString success
-	 * Expect build an inquiry command for last preset recalled which match expected string
+	 * Expect build an inquiry command for last preset recalled which match expected packet
 	 */
 	@Test
 	public void testBuildSendPacketPresetRecallInq() {

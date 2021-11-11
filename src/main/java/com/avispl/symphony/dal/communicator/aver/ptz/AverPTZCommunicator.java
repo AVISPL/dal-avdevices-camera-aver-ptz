@@ -21,6 +21,7 @@ import com.avispl.symphony.api.dal.monitor.Monitorable;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.ReplyStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.PayloadType;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.Prefix;
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.Command;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.CommandType;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.AEMode;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.BacklightStatus;
@@ -59,7 +60,7 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.WBMode;
  * @since 1.0
  */
 public class AverPTZCommunicator extends UDPCommunicator implements Controller, Monitorable {
-	private String cameraID;
+	private String cameraID = "1";
 	private String panSpeed;
 	private String tiltSpeed;
 	private int sequenceNumber = 0;
@@ -90,8 +91,8 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return value of {@link #cameraID}
 	 */
-	public String getCameraID() {
-		return cameraID;
+	public int getCameraID() {
+		return Integer.parseInt(cameraID);
 	}
 
 	/**
@@ -137,6 +138,24 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 */
 	public void setTiltSpeed(String tiltSpeed) {
 		this.tiltSpeed = tiltSpeed;
+	}
+
+	/**
+	 * Retrieves {@code {@link #sequenceNumber}}
+	 *
+	 * @return value of {@link #sequenceNumber}
+	 */
+	public int getSequenceNumber() {
+		return sequenceNumber;
+	}
+
+	/**
+	 * Sets {@code sequenceNumber}
+	 *
+	 * @param sequenceNumber the {@code int} field
+	 */
+	public void setSequenceNumber(int sequenceNumber) {
+		this.sequenceNumber = sequenceNumber;
 	}
 
 	/**
@@ -256,14 +275,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * This method is used to digest the response received from the device
 	 *
 	 * @param response This is the response to be digested
-	 * @param expectedResponseName This is the expected response string to be compared with received
+	 * @param sequenceNum This is the sequence number of send packet
+	 * @param commandType This is the type of command to be digested
+	 * @param expectedCommand This is the expected command to be digested
 	 * @return Object This returns the result digested from the response.
 	 */
-	public Object digestResponse(byte[] response, int sequenceNumber, CommandType commandType, String expectedResponseName) {
+	public Object digestResponse(byte[] response, int sequenceNum, CommandType commandType, Command expectedCommand) {
 
 		if (response[1] == PayloadType.REPLY.getCode()) {
 			byte[] responseSeqNum = Arrays.copyOfRange(response, 4, 8);
-			byte[] expectedSeqNum = convertIntToByteArray(sequenceNumber);
+			byte[] expectedSeqNum = convertIntToByteArray(sequenceNum);
 
 			if (Arrays.equals(expectedSeqNum, responseSeqNum)) {
 				int payloadLength = response[3];
@@ -275,64 +296,65 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 						if (this.logger.isErrorEnabled()) {
 							this.logger.error("error: Unexpected completion packet: " + this.host + " port: " + this.port);
 						}
-						throw new RuntimeException("Unexpected completion packet");
+						throw new IllegalStateException("Unexpected completion packet");
 					}
 				} else if (commandType == CommandType.INQUIRY) {
-					switch (expectedResponseName) {
-						case "Power": {
+					switch (expectedCommand) {
+						case POWER: {
 							Optional<PowerStatus> powerStatus = Arrays.stream(PowerStatus.values())
 									.filter(status -> status.getCode() == currentValue)
 									.findFirst();
 
 							return powerStatus.<Object>map(PowerStatus::getName).orElse(null);
 						}
-						case "FocusMode": {
+						case FOCUS_MODE: {
 							Optional<FocusMode> focusMode = Arrays.stream(FocusMode.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
 
 							return focusMode.<Object>map(FocusMode::getName).orElse(null);
 						}
-						case "AEMode": {
+						case AE_MODE: {
 							Optional<AEMode> aeMode = Arrays.stream(AEMode.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
 
 							return aeMode.<Object>map(AEMode::getName).orElse(null);
 						}
-						case "AutoSlowShutter": {
+						case AUTO_SLOW_SHUTTER: {
 							Optional<SlowShutterStatus> slowShutterStatus = Arrays.stream(SlowShutterStatus.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
 
 							return slowShutterStatus.<Object>map(SlowShutterStatus::getName).orElse(null);
 						}
-						case "ShutterSpeed":
-						case "IrisLevel":
-						case "GainLevel":
-						case "ExposureValue":
-						case "RGain":
-						case "BGain": {
+						case SHUTTER_DIRECT:
+						case IRIS_DIRECT:
+						case GAIN_DIRECT:
+						case EXP_COMP_DIRECT:
+						case RGAIN:
+						case BGAIN: {
 							return reply[4] * 16 + reply[5];
 						}
-						case "GainLimitLevel": {
+						case GAIN_LIMIT_DIRECT:
+						case PRESET: {
 							return (int) reply[2];
 						}
-						case "Backlight": {
+						case BACKLIGHT: {
 							Optional<BacklightStatus> backlightStatus = Arrays.stream(BacklightStatus.values())
 									.filter(status -> status.getCode() == currentValue)
 									.findFirst();
 
 							return backlightStatus.<Object>map(BacklightStatus::getName).orElse(null);
 						}
-						case "WBMode": {
+						case WB_MODE: {
 							Optional<WBMode> wbMode = Arrays.stream(WBMode.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
 
 							return wbMode.<Object>map(WBMode::getName).orElse(null);
 						}
-						case "PanTiltSlowMode": {
+						case SLOW_PAN_TILT: {
 							Optional<SlowPanTiltStatus> slowPanTiltStatus = Arrays.stream(SlowPanTiltStatus.values())
 									.filter(status -> status.getCode() == currentValue)
 									.findFirst();
@@ -347,13 +369,13 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				if (this.logger.isErrorEnabled()) {
 					this.logger.error("error: Unexpected sequence number: " + this.host + " port: " + this.port);
 				}
-				throw new RuntimeException("Unexpected sequence number");
+				throw new IllegalStateException("Unexpected sequence number");
 			}
 		} else {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error: Unexpected reply: " + this.host + " port: " + this.port);
 			}
-			throw new RuntimeException("Unexpected reply");
+			throw new IllegalStateException("Unexpected reply");
 		}
 
 		return null;
