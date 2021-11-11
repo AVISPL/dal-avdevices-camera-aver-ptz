@@ -8,7 +8,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -29,15 +28,15 @@ import com.avispl.symphony.dal.communicator.ConnectionStatus;
  */
 public class UDPCommunicator extends BaseDevice implements Communicator {
 	private static final String ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT = "Cannot change properties after init() was called";
-	private DatagramSocket datagramSocket;
 	private InetAddress address;
-	private int port;
 	private List<String> commandErrorList;
 	private List<String> commandSuccessList;
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 	private final ConnectionStatus status = new ConnectionStatus();
 	private int timeout = 4000;
 	private int bufferLength = 24;
+	private DatagramSocket datagramSocket;
+	protected int port;
 	protected String login;
 	protected String password;
 	protected static final char[] hexArray = "0123456789ABCDEF".toCharArray();
@@ -277,7 +276,8 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		try {
 			if (this.datagramSocket == null || this.datagramSocket.isClosed() || !this.datagramSocket.isConnected()) {
 				this.address = InetAddress.getByName(this.host);
-				this.datagramSocket = new DatagramSocket();
+				this.datagramSocket = new DatagramSocket(this.port);
+				this.datagramSocket.connect(this.address, this.port);
 				this.datagramSocket.setSoTimeout(this.timeout);
 			}
 
@@ -478,39 +478,6 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		buffer = new byte[response.getLength()];
 		System.arraycopy(response.getData(), response.getOffset(), buffer, 0, response.getLength());
 		return buffer;
-	}
-
-	protected boolean doneReading(String command, String response) throws CommandFailureException {
-		Iterator<String> iterator = this.commandErrorList.iterator();
-
-		String string;
-		do {
-			if (!iterator.hasNext()) {
-				iterator = this.commandSuccessList.iterator();
-
-				do {
-					if (!iterator.hasNext()) {
-						return false;
-					}
-
-					string = iterator.next();
-				} while (!response.endsWith(string));
-
-				if (this.logger.isTraceEnabled()) {
-					this.logger.trace("Done reading, found success string: " + string + " from: " + this.host + " port: " + this.port);
-				}
-
-				return true;
-			}
-
-			string = iterator.next();
-		} while (!response.endsWith(string));
-
-		if (this.logger.isTraceEnabled()) {
-			this.logger.trace("Done reading, found error string: " + string + " from: " + this.host + " port: " + this.port);
-		}
-
-		throw new CommandFailureException(this.host, command, response);
 	}
 
 	@Override

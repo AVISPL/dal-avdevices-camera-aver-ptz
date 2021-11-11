@@ -10,14 +10,14 @@ package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param;
  * @version 1.0
  * @since 1.0
  */
-public enum FocusStatus {
+public enum FocusMode {
 	AUTO("Auto", (byte) 0x02),
 	MANUAL("Manual", (byte) 0x03);
 
 	private final String name;
 	private final byte code;
 
-	FocusStatus(String name, byte code) {
+	FocusMode(String name, byte code) {
 		this.name = name;
 		this.code = code;
 	}

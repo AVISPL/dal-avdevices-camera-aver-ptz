@@ -10,8 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.avispl.symphony.dal.communicator.aver.ptz.mock.UDPServer;
-
 /**
  * Unit test for UDP Communicator
  * Send and retrieve data success
@@ -22,17 +20,11 @@ import com.avispl.symphony.dal.communicator.aver.ptz.mock.UDPServer;
  */
 public class UDPCommunicatorTest {
 	UDPCommunicator udpCommunicator;
-	UDPServer udpServer;
 
 	@Before
 	public void setUp() throws Exception {
-		udpServer = new UDPServer();
-		udpServer.setPort(52381);
-		udpServer.init();
-		udpServer.start();
-
 		udpCommunicator = new UDPCommunicator();
-		udpCommunicator.setHost("localhost");
+		udpCommunicator.setHost("172.31.254.204");
 		udpCommunicator.setPort(52381);
 		udpCommunicator.setCommandErrorList(Collections.singletonList(""));
 		udpCommunicator.setCommandSuccessList(Collections.singletonList(""));
@@ -42,19 +34,19 @@ public class UDPCommunicatorTest {
 
 	@After
 	public void destroy() {
-		udpCommunicator.destroy();
-		udpServer.destroy();
+		udpCommunicator.disconnect();
 	}
 
 	/**
 	 * Test UDPCommunicator#send success
-	 * Expect send and receive the same data from UDP server
+	 * Expect send inquiry command and receive success reply packet from UDP server
 	 */
 	@Test
 	public void testSendData() throws Exception {
-		byte[] data = new byte[] { 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x01, 0x04, 0x00, 0x02, (byte) 0xFF };
-		byte[] response = udpCommunicator.send(data);
+		byte[] data = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x00, (byte) 0xFF };
+		byte[] expectedResponse = new byte[] { 0x01, 0x11, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, (byte) 0x90, 0x50, 0x02, (byte) 0xFF };
+		byte[] actualResponse = udpCommunicator.send(data);
 
-		Assert.assertArrayEquals(data, response);
+		Assert.assertArrayEquals(expectedResponse, actualResponse);
 	}
 }

@@ -19,8 +19,8 @@ public enum ReplyStatus {
 	COMMAND_BUFFER_FULL_INQUIRY(new byte[] { (byte) 0x90, 0x60, 0x03, (byte) 0xFF }),
 	NO_SOCKET_CONTROL(new byte[] { (byte) 0x90, 0x61, 0x05, (byte) 0xFF }),
 	NO_SOCKET_INQUIRY(new byte[] { (byte) 0x90, 0x60, 0x05, (byte) 0xFF }),
-	COMMAND_NOT_EXECUTABLE_CONTROL(new byte[] { (byte) 0x90, 0x61, 0x05, (byte) 0xFF }),
-	COMMAND_NOT_EXECUTABLE_INQUIRY(new byte[] { (byte) 0x90, 0x60, 0x05, (byte) 0xFF });
+	COMMAND_NOT_EXECUTABLE_CONTROL(new byte[] { (byte) 0x90, 0x61, 0x41, (byte) 0xFF }),
+	COMMAND_NOT_EXECUTABLE_INQUIRY(new byte[] { (byte) 0x90, 0x60, 0x41, (byte) 0xFF });
 
 	private final byte[] code;
 
