@@ -31,6 +31,20 @@ public class AverPTZRestCommunicator extends RestCommunicator {
 	}
 
 	/**
+	 * This method is used to get instance of this class
+	 */
+	public static AverPTZRestCommunicator getInstance() {
+		return SingletonHelper.INSTANCE;
+	}
+
+	/**
+	 * This method is used to create new instance of this class
+	 */
+	private static class SingletonHelper {
+		private static final AverPTZRestCommunicator INSTANCE = new AverPTZRestCommunicator();
+	}
+
+	/**
 	 * Retrieves {@code {@link #deviceMfg}}
 	 *
 	 * @return value of {@link #deviceMfg}

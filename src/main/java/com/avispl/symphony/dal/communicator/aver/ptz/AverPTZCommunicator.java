@@ -168,7 +168,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * Need to split into method for testing
 	 */
 	public void initAverRestCommunicator() throws Exception {
-		restCommunicator = new AverPTZRestCommunicator();
+		restCommunicator = AverPTZRestCommunicator.getInstance();
 		restCommunicator.setLogin(this.getLogin());
 		restCommunicator.setPassword(this.getPassword());
 		restCommunicator.setHost(this.getHost());
@@ -223,15 +223,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			initAverRestCommunicator();
 			this.restCommunicator.getData();
 			populateMonitorCapabilities(stats);
+			// Control capabilities
+			populateControlCapabilities(stats, advancedControllableProperties);
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error: Cannot get data from Rest communicator: " + this.host + " port: " + this.port);
 			}
-			throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data");
+			throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data", e);
+		} finally {
+			restCommunicator.destroy();
 		}
-
-		// Control capabilities
-		populateControlCapabilities(stats, advancedControllableProperties);
 
 		extStats.setStatistics(stats);
 		extStats.setControllableProperties(advancedControllableProperties);

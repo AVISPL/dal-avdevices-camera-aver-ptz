@@ -57,7 +57,6 @@ public class AverPTZCommunicatorTest {
 		averPTZCommunicator.setPort(52381);
 		averPTZCommunicator.setLogin("root");
 		averPTZCommunicator.setPassword("1234");
-		averPTZCommunicator.initAverRestCommunicator();
 		averPTZCommunicator.init();
 		averPTZCommunicator.connect();
 	}
