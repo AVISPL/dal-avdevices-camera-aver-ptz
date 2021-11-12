@@ -3,8 +3,14 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HASH;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.buildSendPacket;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.convertOneByteNumberToTwoBytesArray;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -13,8 +19,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
+import com.avispl.symphony.api.dal.dto.monitor.ExtendedStatistics;
 import com.avispl.symphony.api.dal.error.CommandFailureException;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.ReplyPacket;
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.StatisticsProperty;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.Category;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.PayloadType;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.Command;
@@ -34,6 +43,10 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.PowerSt
  */
 public class AverPTZCommunicatorTest {
 	AverPTZCommunicator averPTZCommunicator;
+	ExtendedStatistics extendedStatistic;
+	List<AdvancedControllableProperty> advancedControllableProperties;
+	Map<String, String> stats;
+
 	@Rule
 	public ExpectedException exceptionRule = ExpectedException.none();
 
@@ -44,6 +57,7 @@ public class AverPTZCommunicatorTest {
 		averPTZCommunicator.setPort(52381);
 		averPTZCommunicator.setLogin("root");
 		averPTZCommunicator.setPassword("1234");
+		averPTZCommunicator.initAverRestCommunicator();
 		averPTZCommunicator.init();
 		averPTZCommunicator.connect();
 	}
@@ -199,7 +213,7 @@ public class AverPTZCommunicatorTest {
 	 */
 	@Test
 	public void testDigestResponseInquiryCommandRGainValue() {
-		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.RGAIN.getCode(), 1, CommandType.INQUIRY, Command.RGAIN);
+		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.RGAIN.getCode(), 1, CommandType.INQUIRY, Command.RGAIN_INQ);
 		Assert.assertEquals(33, value);
 	}
 
@@ -209,7 +223,7 @@ public class AverPTZCommunicatorTest {
 	 */
 	@Test
 	public void testDigestResponseInquiryCommandBGainValue() {
-		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.BGAIN.getCode(), 1, CommandType.INQUIRY, Command.BGAIN);
+		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.BGAIN.getCode(), 1, CommandType.INQUIRY, Command.BGAIN_INQ);
 		Assert.assertEquals(52, value);
 	}
 
@@ -481,4 +495,243 @@ public class AverPTZCommunicatorTest {
 		Assert.assertTrue(status.equalsIgnoreCase("On") || status.equalsIgnoreCase("Off"));
 	}
 
+	/**
+	 * Test AxisCommunicator#getMultipleStatistics success
+	 * Expect device info get data success
+	 */
+	@Test
+	public void testAverPTZCommunicatorDeviceInfo() {
+		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
+		stats = extendedStatistic.getStatistics();
+
+		Assert.assertEquals("AVer Information Co.", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MFG.getName()));
+		Assert.assertEquals("PTZ330", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MODEL.getName()));
+		Assert.assertEquals("5310505800460", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_SERIAL_NUMBER.getName()));
+		Assert.assertEquals("0.0.0003.72", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_FIRMWARE_VERSION.getName()));
+		Assert.assertEquals("6", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_LAST_PRESET_RECALLED.getName()));
+	}
+
+	/**
+	 * Test AxisCommunicator#getMultipleStatistics success
+	 * Expect power status get data success
+	 */
+	@Test
+	public void testAverPTZCommunicatorPowerStatus() {
+		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
+		advancedControllableProperties = extendedStatistic.getControllableProperties();
+
+		for (AdvancedControllableProperty property : advancedControllableProperties) {
+			if (property.getName().equalsIgnoreCase(Command.POWER.getName())) {
+				Assert.assertTrue((int) property.getValue() == 1 || (int) property.getValue() == 0);
+			}
+		}
+	}
+
+	/**
+	 * Test AxisCommunicator#getMultipleStatistics success
+	 * Expect focus mode get data success
+	 */
+	@Test
+	public void testAverPTZCommunicatorFocusMode() {
+		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
+		advancedControllableProperties = extendedStatistic.getControllableProperties();
+
+		for (AdvancedControllableProperty property : advancedControllableProperties) {
+			if (property.getName().equalsIgnoreCase(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName())) {
+				Assert.assertTrue((int) property.getValue() == 1 || (int) property.getValue() == 0);
+			}
+		}
+	}
+
+	/**
+	 * Test AxisCommunicator#getMultipleStatistics success
+	 * Expect backlight status get data success
+	 */
+	@Test
+	public void testAverPTZCommunicatorBacklightStatus() {
+		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
+		advancedControllableProperties = extendedStatistic.getControllableProperties();
+
+		for (AdvancedControllableProperty property : advancedControllableProperties) {
+			if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName())) {
+				Assert.assertTrue((int) property.getValue() == 1 || (int) property.getValue() == 0);
+			}
+		}
+	}
+
+	/**
+	 * Test AxisCommunicator#getMultipleStatistics success
+	 * Expect backlight status get data success
+	 */
+	@Test
+	public void testAverPTZCommunicatorSlowPanTiltStatus() {
+		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
+		advancedControllableProperties = extendedStatistic.getControllableProperties();
+
+		for (AdvancedControllableProperty property : advancedControllableProperties) {
+			if (property.getName().equalsIgnoreCase(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName())) {
+				Assert.assertTrue((int) property.getValue() == 1 || (int) property.getValue() == 0);
+			}
+		}
+	}
+
+	/**
+	 * Test AxisCommunicator#getMultipleStatistics success
+	 * Expect AE mode get data success
+	 */
+	@Test
+	public void testAverPTZCommunicatorAEMode() {
+		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
+		advancedControllableProperties = extendedStatistic.getControllableProperties();
+		stats = extendedStatistic.getStatistics();
+
+		String aeMode = "FullAuto", value;
+		List<String> shutterValues = new ArrayList<>(
+				Arrays.asList("1/32K", "1/16K", "1/8K", "1/4K", "1/2K", "1/1K", "1/480", "1/240", "1/120", "1/60", "1/30", "1/20", "1/10", "1/5", "1/2", "1/1"));
+		List<String> irisLevels = new ArrayList<>(
+				Arrays.asList("0", "F14", "F11", "F8.0", "F6.8", "F5.6", "F4.8", "F4.0", "F3.4", "F2.8", "F2.4", "F2.0", "F1.8", "F1.6"));
+
+		for (AdvancedControllableProperty property : advancedControllableProperties) {
+			if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName())) {
+				aeMode = (String) property.getValue();
+				Assert.assertTrue(aeMode.equals("FullAuto") || aeMode.equals("IrisPriority") || aeMode.equals("ShutterPriority") || aeMode.equals("Manual"));
+			}
+		}
+
+		switch (aeMode) {
+			case "FullAuto": {
+
+				// Current value
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName());
+				Assert.assertTrue(Integer.parseInt(value) >= -4 && Integer.parseInt(value) <= 4);
+
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName());
+				Assert.assertTrue(Integer.parseInt(value) >= 24 && Integer.parseInt(value) <= 48);
+
+				// Value for slider
+				for (AdvancedControllableProperty property : advancedControllableProperties) {
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName())) {
+
+						Assert.assertTrue((float) property.getValue() >= 1 && (float) property.getValue() <= 9);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName())) {
+
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 8);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName())) {
+						Assert.assertTrue((int) property.getValue() == 1 || (int) property.getValue() == 0);
+					}
+				}
+				break;
+			}
+
+			case "ShutterPriority": {
+				// Value text
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName());
+				Assert.assertTrue(Integer.parseInt(value) >= -4 && Integer.parseInt(value) <= 4);
+
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName());
+				Assert.assertTrue(Integer.parseInt(value) >= 24 && Integer.parseInt(value) <= 48);
+
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName());
+				Assert.assertTrue(shutterValues.contains(value));
+
+				// Value for slider
+				for (AdvancedControllableProperty property : advancedControllableProperties) {
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 1 && (float) property.getValue() <= 9);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 8);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 15);
+					}
+				}
+				break;
+			}
+
+			case "IrisPriority": {
+				// Value text
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName());
+				Assert.assertTrue(Integer.parseInt(value) >= -4 && Integer.parseInt(value) <= 4);
+
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName());
+				Assert.assertTrue(Integer.parseInt(value) >= 24 && Integer.parseInt(value) <= 48);
+
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName());
+				Assert.assertTrue(irisLevels.contains(value));
+
+				// Value for slider
+				for (AdvancedControllableProperty property : advancedControllableProperties) {
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 1 && (float) property.getValue() <= 9);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 8);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName())) {
+						Assert.assertTrue((int) property.getValue() == 1 || (int) property.getValue() == 0);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 13);
+					}
+				}
+				break;
+			}
+
+			case "Manual": {
+				// Value text
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName());
+				Assert.assertTrue(shutterValues.contains(value));
+
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName());
+				Assert.assertTrue(Integer.parseInt(value) >= 0 && Integer.parseInt(value) <= 48);
+
+				value = stats.get(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName());
+				Assert.assertTrue(irisLevels.contains(value));
+
+				// Value for slider
+				for (AdvancedControllableProperty property : advancedControllableProperties) {
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 15);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 48);
+					}
+
+					if (property.getName().equalsIgnoreCase(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName())) {
+						Assert.assertTrue((float) property.getValue() >= 0 && (float) property.getValue() <= 13);
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Test AxisCommunicator#getMultipleStatistics success
+	 * Expect WB mode get data success
+	 */
+	@Test
+	public void testAverPTZCommunicatorWBMode() {
+		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
+		advancedControllableProperties = extendedStatistic.getControllableProperties();
+		stats = extendedStatistic.getStatistics();
+
+		for (AdvancedControllableProperty property : advancedControllableProperties) {
+			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName())) {
+				String wbMode = (String) property.getValue();
+				Assert.assertTrue(wbMode.equals("Auto") || wbMode.equals("Manual") || wbMode.equals("Indoor") || wbMode.equals("Outdoor") || wbMode.equals("OnePushWB"));
+			}
+		}
+	}
 }
