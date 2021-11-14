@@ -3,9 +3,8 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HASH;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.buildSendPacket;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.convertIntToByteArray;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.*;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,9 +29,10 @@ import com.avispl.symphony.api.dal.dto.monitor.Statistics;
 import com.avispl.symphony.api.dal.error.CommandFailureException;
 import com.avispl.symphony.api.dal.error.ResourceNotReachableException;
 import com.avispl.symphony.api.dal.monitor.Monitorable;
+import com.avispl.symphony.dal.communicator.aver.ptz.dto.DeviceInfo;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.ReplyStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.StatisticsProperty;
-import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.Category;
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.PayloadCategory;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.PayloadType;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.Prefix;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.Command;
@@ -87,6 +87,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 	private AverPTZRestCommunicator restCommunicator;
 	private final ReentrantLock controlOperationsLock = new ReentrantLock();
+	private DeviceInfo deviceInfo;
 
 	/**
 	 * Constructor set command error and success list to be used as well the default camera ID
@@ -168,7 +169,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * Need to split into method for testing
 	 */
 	public void initAverRestCommunicator() throws Exception {
-		restCommunicator = AverPTZRestCommunicator.getInstance();
+		restCommunicator = new AverPTZRestCommunicator();
 		restCommunicator.setLogin(this.getLogin());
 		restCommunicator.setPassword(this.getPassword());
 		restCommunicator.setHost(this.getHost());
@@ -221,7 +222,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		// Monitoring capabilities
 		try {
 			initAverRestCommunicator();
-			this.restCommunicator.getData();
+			deviceInfo = this.restCommunicator.getDeviceInfo();
 			populateMonitorCapabilities(stats);
 			// Control capabilities
 			populateControlCapabilities(stats, advancedControllableProperties);
@@ -231,7 +232,13 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			}
 			throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data", e);
 		} finally {
-			restCommunicator.destroy();
+			try {
+				restCommunicator.disconnect();
+			} catch (Exception e) {
+				if (this.logger.isErrorEnabled()) {
+					this.logger.error("error: Cannot disconnect from Rest communicator: " + this.host + " port: " + this.port);
+				}
+			}
 		}
 
 		extStats.setStatistics(stats);
@@ -246,10 +253,10 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param stats is the map that store all statistics
 	 */
 	private void populateMonitorCapabilities(Map<String, String> stats) {
-		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MFG.getName(), restCommunicator.getDeviceMfg());
-		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MODEL.getName(), restCommunicator.getDeviceModel());
-		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_SERIAL_NUMBER.getName(), restCommunicator.getDeviceSerialNumber());
-		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_FIRMWARE_VERSION.getName(), restCommunicator.getDeviceFirmwareVersion());
+		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MFG.getName(), deviceInfo.getDeviceMfg());
+		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MODEL.getName(), deviceInfo.getDeviceModel());
+		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_SERIAL_NUMBER.getName(), deviceInfo.getDeviceSerialNumber());
+		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_FIRMWARE_VERSION.getName(), deviceInfo.getDeviceFirmwareVersion());
 		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_LAST_PRESET_RECALLED.getName(), this.getLastPresetRecalled());
 	}
 
@@ -261,13 +268,13 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 */
 	private void populateControlCapabilities(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
 		// Getting power status from device
-		String powerStatus = getPowerStatus();
+		PowerStatus powerStatus = getPowerStatus();
 		stats.put(Command.POWER.getName(), "");
 
 		assert powerStatus != null;
-		if (powerStatus.compareTo("Off") == 0) {
+		if (powerStatus.compareTo(PowerStatus.OFF) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.POWER.getName(), 0, PowerStatus.OFF.getName(), PowerStatus.ON.getName()));
-		} else if (powerStatus.compareTo("On") == 0) {
+		} else if (powerStatus.compareTo(PowerStatus.ON) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.POWER.getName(), 1, PowerStatus.OFF.getName(), PowerStatus.ON.getName()));
 
 			// Zoom control
@@ -275,9 +282,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 			// Focus control
 			populateFocusControl(stats, advancedControllableProperties);
-
-			// Backlight control
-			populateBacklightControl(stats, advancedControllableProperties);
 
 			// AE control
 			populateAEControl(stats, advancedControllableProperties);
@@ -319,7 +323,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 */
 	private void populateFocusControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
 		// Getting focus mode
-		String focusMode = getFocusStatus();
+		FocusMode focusMode = getFocusStatus();
 
 		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName(), "");
 		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), "");
@@ -327,35 +331,15 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 		assert focusMode != null;
 
-		if (focusMode.compareTo("Auto") == 0) {
+		if (focusMode.compareTo(FocusMode.AUTO) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), 0, FocusMode.AUTO.getName(), FocusMode.MANUAL.getName()));
-		}
-		if (focusMode.compareTo("Manual") == 0) {
+		} else if (focusMode.compareTo(FocusMode.MANUAL) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), 1, FocusMode.AUTO.getName(), FocusMode.MANUAL.getName()));
 			stats.put(Command.FOCUS.getName() + HASH + FocusControl.FAR.getName(), "");
 			stats.put(Command.FOCUS.getName() + HASH + FocusControl.NEAR.getName(), "");
 
 			advancedControllableProperties.add(createButton(Command.FOCUS.getName() + HASH + FocusControl.FAR.getName(), FocusControl.FAR.getName()));
 			advancedControllableProperties.add(createButton(Command.FOCUS.getName() + HASH + FocusControl.NEAR.getName(), FocusControl.NEAR.getName()));
-		}
-	}
-
-	/**
-	 * This method is used for populate all backlight control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 */
-	private void populateBacklightControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		// Getting backlight status
-		String backlightStatus = getBacklightStatus();
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), "");
-		assert backlightStatus != null;
-
-		if (backlightStatus.compareTo("Off") == 0) {
-			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), 0, BacklightStatus.OFF.getName(), BacklightStatus.ON.getName()));
-		} else if (backlightStatus.compareTo("On") == 0) {
-			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), 1, BacklightStatus.OFF.getName(), BacklightStatus.ON.getName()));
 		}
 	}
 
@@ -374,81 +358,170 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		aeModeList.add(AEMode.SHUTTER_PRIORITY.getName());
 		aeModeList.add(AEMode.MANUAL.getName());
 
-		advancedControllableProperties.add(createDropdown(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), aeModeList, this.getAEMode()));
+		AEMode aeMode = this.getAEMode();
+		assert aeMode != null;
+		advancedControllableProperties.add(createDropdown(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), aeModeList, aeMode.getName()));
 
 		// Getting auto slow shutter status
-		String autoSlowShutterStatus = getAutoSlowShutterStatus();
+		SlowShutterStatus autoSlowShutterStatus = getAutoSlowShutterStatus();
 
-		if (AEMode.FULL_AUTO.getName().equalsIgnoreCase(this.getAEMode())) {
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), this.getExposureValue());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), this.getGainLimitLevel());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), "");
+		switch (aeMode) {
+			case FULL_AUTO: {
+				// Populate backlight control
+				populateBacklightControl(stats, advancedControllableProperties);
 
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "-4", "4", 1F, 9F, Float.parseFloat(this.getExposureValue()) + 5));
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "24", "48", (float) 0, 8F, (Float.parseFloat(this.getGainLimitLevel()) - 24) / 3));
+				// Populate exposure control
+				populateExposureControl(stats, advancedControllableProperties);
 
-			assert autoSlowShutterStatus != null;
-			if (autoSlowShutterStatus.compareTo("On") == 0) {
-				advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 1, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
-			} else if (autoSlowShutterStatus.compareTo("Off") == 0) {
-				advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 0, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
+				// Populate gain limit control
+				populateGainLimitControl(stats, advancedControllableProperties);
+
+				// Populate slow shutter control
+				assert autoSlowShutterStatus != null;
+				populateAutoSlowShutterControl(stats, advancedControllableProperties, autoSlowShutterStatus);
+				break;
 			}
-		} else if (AEMode.SHUTTER_PRIORITY.getName().equalsIgnoreCase(this.getAEMode())) {
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), this.getExposureValue());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), this.getGainLimitLevel());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), this.getShutterSpeed().getValue());
+			case SHUTTER_PRIORITY: {
+				// Populate exposure control
+				populateExposureControl(stats, advancedControllableProperties);
 
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "-4", "4", 1F, 9F, Float.parseFloat(this.getExposureValue()) + 5));
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "24", "48", (float) 0, 8F, (Float.parseFloat(this.getGainLimitLevel()) - 24) / 3));
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), "1/32K", "1/1", (float) 0, 15F, this.getShutterSpeed().getKey().floatValue()));
+				// Populate gain limit control
+				populateGainLimitControl(stats, advancedControllableProperties);
 
-		} else if (AEMode.IRIS_PRIORITY.getName().equalsIgnoreCase(this.getAEMode())) {
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), this.getExposureValue());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), this.getGainLimitLevel());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), this.getIrisLevel().getValue());
-
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "-4", "4", 1F, 9F, Float.parseFloat(this.getExposureValue()) + 5));
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "24", "48", (float) 0, 8F, (Float.parseFloat(this.getGainLimitLevel()) - 24) / 3));
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), "0", "F1.6", (float) 0, 13F, this.getIrisLevel().getKey().floatValue()));
-
-			assert autoSlowShutterStatus != null;
-			if (autoSlowShutterStatus.compareTo("On") == 0) {
-				advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 1, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
-			} else if (autoSlowShutterStatus.compareTo("Off") == 0) {
-				advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 0, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
+				// Populate shutter control
+				populateShutterControl(stats, advancedControllableProperties);
+				break;
 			}
-		} else if (AEMode.MANUAL.getName().equalsIgnoreCase(this.getAEMode())) {
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), this.getShutterSpeed().getValue());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName(), this.getGainLevel());
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), "");
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), this.getIrisLevel().getValue());
+			case IRIS_PRIORITY: {
+				// Populate exposure control
+				populateExposureControl(stats, advancedControllableProperties);
 
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), "1/32K", "1/1", (float) 0, 15F, this.getShutterSpeed().getKey().floatValue()));
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "0", "48", (float) 0, 48F, Float.parseFloat(this.getGainLevel())));
-			advancedControllableProperties.add(
-					createSlider(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), "0", "F1.6", (float) 0, 13F, this.getIrisLevel().getKey().floatValue()));
+				// Populate gain limit control
+				populateGainLimitControl(stats, advancedControllableProperties);
+
+				// Populate slow shutter control
+				assert autoSlowShutterStatus != null;
+				populateAutoSlowShutterControl(stats, advancedControllableProperties, autoSlowShutterStatus);
+
+				// Populate iris control
+				populateIrisControl(stats, advancedControllableProperties);
+				break;
+			}
+			case MANUAL:
+				// Populate shutter control
+				populateShutterControl(stats, advancedControllableProperties);
+
+				// Populate gain control
+				populateGainControl(stats, advancedControllableProperties);
+
+				// Populate iris control
+				populateIrisControl(stats, advancedControllableProperties);
 		}
+	}
+
+	/**
+	 * This method is used for populate all backlight control properties
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 */
+	private void populateBacklightControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		// Getting backlight status
+		BacklightStatus backlightStatus = getBacklightStatus();
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), "");
+		assert backlightStatus != null;
+
+		if (backlightStatus.compareTo(BacklightStatus.OFF) == 0) {
+			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), 0, BacklightStatus.OFF.getName(), BacklightStatus.ON.getName()));
+		} else if (backlightStatus.compareTo(BacklightStatus.ON) == 0) {
+			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), 1, BacklightStatus.OFF.getName(), BacklightStatus.ON.getName()));
+		}
+	}
+
+	/**
+	 * This method is used for populate all Exposure control properties
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 */
+	private void populateExposureControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "");
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), this.getExposureValue());
+		advancedControllableProperties.add(
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), LABEL_START_EXPOSURE_VALUE, LABEL_END_EXPOSURE_VALUE,
+						RANGE_START_EXPOSURE_VALUE, RANGE_END_EXPOSURE_VALUE, Float.parseFloat(this.getExposureValue()) + 5));
+	}
+
+	/**
+	 * This method is used for populate all gain limit control properties
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 */
+	private void populateGainLimitControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "");
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), this.getGainLimitLevel());
+		// Gain limit level: 24, 27, 30,..., 48 -> Value in slider: (gain limit level - 24) /3
+		advancedControllableProperties.add(
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), LABEL_START_GAIN_LIMIT_VALUE, LABEL_END_GAIN_LIMIT_VALUE,
+						RANGE_START_GAIN_LIMIT_VALUE, RANGE_END_GAIN_LIMIT_VALUE, (Float.parseFloat(this.getGainLimitLevel()) - 24) / 3));
+	}
+
+	/**
+	 * This method is used for auto slow shutter control properties
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 * @param autoSlowShutterStatus is the status of auto slow shutter
+	 */
+	private void populateAutoSlowShutterControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, SlowShutterStatus autoSlowShutterStatus) {
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), "");
+		if (autoSlowShutterStatus.compareTo(SlowShutterStatus.ON) == 0) {
+			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 1, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
+		} else if (autoSlowShutterStatus.compareTo(SlowShutterStatus.OFF) == 0) {
+			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 0, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
+		}
+	}
+
+	/**
+	 * This method is used for populate all shutter control properties
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 */
+	private void populateShutterControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), "");
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), this.getShutterSpeed().getValue());
+		advancedControllableProperties.add(
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), LABEL_START_SHUTTER_VALUE, LABEL_END_SHUTTER_VALUE, RANGE_START_SHUTTER_VALUE,
+						RANGE_END_SHUTTER_VALUE, this.getShutterSpeed().getKey().floatValue()));
+	}
+
+	/**
+	 * This method is used for populate all iris control properties
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 */
+	private void populateIrisControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), "");
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), this.getIrisLevel().getValue());
+		advancedControllableProperties.add(
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), LABEL_START_IRIS_VALUE, LABEL_END_IRIS_VALUE, RANGE_START_IRIS_VALUE,
+						RANGE_END_IRIS_VALUE, this.getIrisLevel().getKey().floatValue()));
+	}
+
+	/**
+	 * This method is used for populate all gain control properties
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 */
+	private void populateGainControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "");
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName(), this.getGainLevel());
+		advancedControllableProperties.add(
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "0", "48", (float) 0, 48F, Float.parseFloat(this.getGainLevel())));
 	}
 
 	/**
@@ -467,9 +540,10 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		wbModeList.add(WBMode.ONE_PUSH_WB.getName());
 		wbModeList.add(WBMode.MANUAL.getName());
 
-		advancedControllableProperties.add(createDropdown(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), wbModeList, this.getWBMode()));
+		WBMode wbMode = this.getWBMode();
+		advancedControllableProperties.add(createDropdown(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), wbModeList, wbMode.getName()));
 
-		if (WBMode.MANUAL.getName().equalsIgnoreCase(this.getWBMode())) {
+		if (WBMode.MANUAL.equals(wbMode)) {
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName(), "");
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.DOWN.getName(), "");
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName(), this.getRGain());
@@ -488,7 +562,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			advancedControllableProperties.add(
 					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.DOWN.getName(), BGainControl.DOWN.getName()));
 
-		} else if (WBMode.ONE_PUSH_WB.getName().equalsIgnoreCase(getWBMode())) {
+		} else if (WBMode.ONE_PUSH_WB.equals(wbMode)) {
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName(), "");
 			advancedControllableProperties.add(
 					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName(), Command.WB_ONE_PUSH_TRIGGER.getName()));
@@ -531,13 +605,13 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + Command.PAN_TILT_HOME.getName(), Command.PAN_TILT_HOME.getName()));
 
 		// Getting slow pan tilt status
-		String slowPanTiltStatus = getSlowPanTiltStatus();
+		SlowPanTiltStatus slowPanTiltStatus = getSlowPanTiltStatus();
 		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), "");
 
 		assert slowPanTiltStatus != null;
-		if (slowPanTiltStatus.compareTo("Off") == 0) {
+		if (slowPanTiltStatus.compareTo(SlowPanTiltStatus.OFF) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), 0, SlowPanTiltStatus.OFF.getName(), SlowPanTiltStatus.ON.getName()));
-		} else if (slowPanTiltStatus.compareTo("On") == 0) {
+		} else if (slowPanTiltStatus.compareTo(SlowPanTiltStatus.ON) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), 1, SlowPanTiltStatus.OFF.getName(), SlowPanTiltStatus.ON.getName()));
 		}
 	}
@@ -570,12 +644,12 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.PRESET.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.PRESET.getCode()));
 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.PRESET));
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get power send", e);
+				this.logger.error("error during get last preset recalled send", e);
 			}
 		}
 		return null;
@@ -586,16 +660,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the power status
 	 */
-	private String getPowerStatus() {
+	private PowerStatus getPowerStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.POWER.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.POWER.getCode()));
 
-			String status = (String) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.POWER);
+			PowerStatus status = (PowerStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.POWER);
 
 			if (status == null) {
-				return PowerStatus.OFF.getName();
+				return PowerStatus.OFF;
 			} else {
 				return status;
 			}
@@ -612,18 +686,18 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the focus status
 	 */
-	private String getFocusStatus() {
+	private FocusMode getFocusStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.FOCUS_MODE.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.FOCUS_MODE.getCode()));
 
-			String status = (String) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.FOCUS_MODE);
+			FocusMode mode = (FocusMode) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.FOCUS_MODE);
 
-			if (status == null) {
-				return FocusMode.AUTO.getName();
+			if (mode == null) {
+				return FocusMode.AUTO;
 			} else {
-				return status;
+				return mode;
 			}
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
@@ -638,16 +712,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the backlight status
 	 */
-	private String getBacklightStatus() {
+	private BacklightStatus getBacklightStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.BACKLIGHT.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.BACKLIGHT.getCode()));
 
-			String status = (String) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.BACKLIGHT);
+			BacklightStatus status = (BacklightStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.BACKLIGHT);
 
 			if (status == null) {
-				return BacklightStatus.OFF.getName();
+				return BacklightStatus.OFF;
 			} else {
 				return status;
 			}
@@ -664,16 +738,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the AE mode
 	 */
-	private String getAEMode() {
+	private AEMode getAEMode() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.AE_MODE.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode()));
 
-			String mode = (String) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.AE_MODE);
+			AEMode mode = (AEMode) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.AE_MODE);
 
 			if (mode == null) {
-				return AEMode.FULL_AUTO.getName();
+				return AEMode.FULL_AUTO;
 			} else {
 				return mode;
 			}
@@ -694,15 +768,15 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.EXP_COMP_DIRECT.getCode()));
-
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.EXP_COMP_DIRECT.getCode()));
+			// Exposure value: -4 -> 4, Value get from device: 1 -> 9 => Exposure value = value from device - 5
 			return String.valueOf((int) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.EXP_COMP_DIRECT) - 5);
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error during get exposure value", e);
 			}
 		}
-		return "-4";
+		return LABEL_START_EXPOSURE_VALUE;
 	}
 
 	/**
@@ -712,23 +786,20 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * key: int value of slider, value: string value of shutter speed
 	 */
 	private Entry<Integer, String> getShutterSpeed() {
-		List<String> shutterValues = new ArrayList<>(
-				Arrays.asList("1/32K", "1/16K", "1/8K", "1/4K", "1/2K", "1/1K", "1/480", "1/240", "1/120", "1/60", "1/30", "1/20", "1/10", "1/5", "1/2", "1/1"));
-
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.SHUTTER_DIRECT.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.SHUTTER_DIRECT.getCode()));
 
 			int index = (int) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.SHUTTER_DIRECT);
 
-			return new SimpleEntry<>(index, shutterValues.get(index));
+			return new SimpleEntry<>(index, SHUTTER_VALUES.get(index));
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error during get shutter speed", e);
 			}
 		}
-		return new SimpleEntry<>(0, shutterValues.get(0));
+		return new SimpleEntry<>(0, SHUTTER_VALUES.get(0));
 	}
 
 	/**
@@ -738,22 +809,19 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * key: int value of slider, value: string value of iris level
 	 */
 	private Entry<Integer, String> getIrisLevel() {
-		List<String> irisLevels = new ArrayList<>(
-				Arrays.asList("0", "F14", "F11", "F8.0", "F6.8", "F5.6", "F4.8", "F4.0", "F3.4", "F2.8", "F2.4", "F2.0", "F1.8", "F1.6"));
-
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.IRIS_DIRECT.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.IRIS_DIRECT.getCode()));
 
 			int index = (int) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.IRIS_DIRECT);
-			return new SimpleEntry<>(index, irisLevels.get(index));
+			return new SimpleEntry<>(index, IRIS_LEVELS.get(index));
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error during get iris level", e);
 			}
 		}
-		return new SimpleEntry<>(0, irisLevels.get(0));
+		return new SimpleEntry<>(0, IRIS_LEVELS.get(0));
 	}
 
 	/**
@@ -765,7 +833,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.GAIN_DIRECT.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.GAIN_DIRECT.getCode()));
 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.GAIN_DIRECT));
 		} catch (Exception e) {
@@ -773,7 +841,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get gain level", e);
 			}
 		}
-		return "0";
+		return LABEL_START_IRIS_VALUE;
 	}
 
 	/**
@@ -785,15 +853,15 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.GAIN_LIMIT_DIRECT.getCode()));
-
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.GAIN_LIMIT_DIRECT.getCode()));
+			// Gain limit level: 24, 27, ... , 48. Value get from device: 0,1, ... , 8 => gain limit level = (value from device + 24 ) * 3
 			return String.valueOf(24 + (int) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.GAIN_LIMIT_DIRECT) * 3);
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error during get gain limit level", e);
 			}
 		}
-		return "24";
+		return LABEL_START_GAIN_LIMIT_VALUE;
 	}
 
 	/**
@@ -801,16 +869,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the WB mode
 	 */
-	private String getWBMode() {
+	private WBMode getWBMode() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.WB_MODE.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.WB_MODE.getCode()));
 
-			String mode = (String) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.WB_MODE);
+			WBMode mode = (WBMode) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.WB_MODE);
 
 			if (mode == null) {
-				return WBMode.AUTO.getName();
+				return WBMode.MANUAL;
 			} else {
 				return mode;
 			}
@@ -818,8 +886,8 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error during get WB mode", e);
 			}
+			return WBMode.MANUAL;
 		}
-		return null;
 	}
 
 	/**
@@ -831,7 +899,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.RGAIN_INQ.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.RGAIN_INQ.getCode()));
 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.RGAIN_INQ));
 
@@ -840,7 +908,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get RGain value", e);
 			}
 		}
-		return "0";
+		return RGAIN_START;
 	}
 
 	/**
@@ -852,7 +920,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.BGAIN_INQ.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.BGAIN_INQ.getCode()));
 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.BGAIN_INQ));
 
@@ -861,7 +929,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get BGain value", e);
 			}
 		}
-		return "0";
+		return BGAIN_START;
 	}
 
 	/**
@@ -869,16 +937,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the slow pan tilt status
 	 */
-	private String getSlowPanTiltStatus() {
+	private SlowPanTiltStatus getSlowPanTiltStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.SLOW_PAN_TILT.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.PAN_TILTER.getCode(), Command.SLOW_PAN_TILT.getCode()));
 
-			String status = (String) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.SLOW_PAN_TILT);
+			SlowPanTiltStatus status = (SlowPanTiltStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.SLOW_PAN_TILT);
 
 			if (status == null) {
-				return SlowPanTiltStatus.OFF.getName();
+				return SlowPanTiltStatus.OFF;
 			} else {
 				return status;
 			}
@@ -895,16 +963,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the auto slow shutter status
 	 */
-	private String getAutoSlowShutterStatus() {
+	private SlowShutterStatus getAutoSlowShutterStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
-					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), Category.CAMERA.getCode(), Command.AUTO_SLOW_SHUTTER.getCode()));
+					buildSendPacket(cameraID, currentSeqNum, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.AUTO_SLOW_SHUTTER.getCode()));
 
-			String status = (String) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.AUTO_SLOW_SHUTTER);
+			SlowShutterStatus status = (SlowShutterStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.AUTO_SLOW_SHUTTER);
 
 			if (status == null) {
-				return SlowShutterStatus.OFF.getName();
+				return SlowShutterStatus.OFF;
 			} else {
 				return status;
 			}
@@ -1035,28 +1103,27 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 									.filter(status -> status.getCode() == currentValue)
 									.findFirst();
 
-							return powerStatus.<Object>map(PowerStatus::getName).orElse(null);
+							return powerStatus.orElse(null);
 						}
 						case FOCUS_MODE: {
 							Optional<FocusMode> focusMode = Arrays.stream(FocusMode.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
 
-							return focusMode.<Object>map(FocusMode::getName).orElse(null);
+							return focusMode.orElse(null);
 						}
 						case AE_MODE: {
 							Optional<AEMode> aeMode = Arrays.stream(AEMode.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
-
-							return aeMode.<Object>map(AEMode::getName).orElse(null);
+							return aeMode.orElse(null);
 						}
 						case AUTO_SLOW_SHUTTER: {
 							Optional<SlowShutterStatus> slowShutterStatus = Arrays.stream(SlowShutterStatus.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
 
-							return slowShutterStatus.<Object>map(SlowShutterStatus::getName).orElse(null);
+							return slowShutterStatus.orElse(null);
 						}
 						case SHUTTER_DIRECT:
 						case IRIS_DIRECT:
@@ -1075,21 +1142,21 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 									.filter(status -> status.getCode() == currentValue)
 									.findFirst();
 
-							return backlightStatus.<Object>map(BacklightStatus::getName).orElse(null);
+							return backlightStatus.orElse(null);
 						}
 						case WB_MODE: {
 							Optional<WBMode> wbMode = Arrays.stream(WBMode.values())
 									.filter(mode -> mode.getCode() == currentValue)
 									.findFirst();
 
-							return wbMode.<Object>map(WBMode::getName).orElse(null);
+							return wbMode.orElse(null);
 						}
 						case SLOW_PAN_TILT: {
 							Optional<SlowPanTiltStatus> slowPanTiltStatus = Arrays.stream(SlowPanTiltStatus.values())
 									.filter(status -> status.getCode() == currentValue)
 									.findFirst();
 
-							return slowPanTiltStatus.<Object>map(SlowPanTiltStatus::getName).orElse(null);
+							return slowPanTiltStatus.orElse(null);
 						}
 						default:
 							break;
