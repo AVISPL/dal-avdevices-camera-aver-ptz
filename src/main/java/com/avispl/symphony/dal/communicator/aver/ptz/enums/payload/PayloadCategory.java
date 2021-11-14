@@ -10,14 +10,14 @@ package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload;
  * @version 1.0
  * @since 1.0
  */
-public enum Category {
+public enum PayloadCategory {
 	INTERFACE((byte) 0x00),
 	CAMERA((byte) 0x04),
 	PAN_TILTER((byte) 0x06);
 
 	private final byte code;
 
-	Category(byte code) {
+	PayloadCategory(byte code) {
 		this.code = code;
 	}
 
