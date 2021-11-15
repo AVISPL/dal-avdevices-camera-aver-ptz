@@ -3,8 +3,30 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.*;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.*;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.BGAIN_START;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HASH;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.IRIS_LEVELS;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_EXPOSURE_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_GAIN_LIMIT_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_IRIS_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_EXPOSURE_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_GAIN_LIMIT_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_IRIS_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_EXPOSURE_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LIMIT_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_IRIS_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_EXPOSURE_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_GAIN_LIMIT_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_IRIS_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RGAIN_START;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SHUTTER_VALUES;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.buildSendPacket;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.convertIntToByteArray;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.convertOneByteNumberToTwoBytesArray;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -80,13 +102,12 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.ZoomCon
  * @since 1.0
  */
 public class AverPTZCommunicator extends UDPCommunicator implements Controller, Monitorable {
+	private final ReentrantLock controlOperationsLock = new ReentrantLock();
 	private int cameraID = 1;
 	private int panSpeed = 1;
 	private int tiltSpeed = 1;
 	private int sequenceNumber = 0;
-
 	private AverPTZRestCommunicator restCommunicator;
-	private final ReentrantLock controlOperationsLock = new ReentrantLock();
 	private DeviceInfo deviceInfo;
 
 	/**
@@ -183,7 +204,175 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 */
 	@Override
 	public void controlProperty(ControllableProperty controllableProperty) {
+		String property = controllableProperty.getProperty();
+		String value = String.valueOf(controllableProperty.getValue());
+		controlOperationsLock.lock();
 
+		try {
+			// Power
+			if (property.startsWith(Command.POWER.getName())) {
+				if (value.equals("1")) {
+					powerOn();
+				} else if (value.equals("0")) {
+					powerOff();
+				}
+			}
+
+			// Zoom
+			else if (property.startsWith(Command.ZOOM.getName())) {
+				if (property.endsWith(ZoomControl.TELE.getName())) {
+					zoomTele();
+				} else if (property.endsWith(ZoomControl.WIDE.getName())) {
+					zoomWide();
+				}
+			}
+
+			// Focus
+			else if (property.startsWith(Command.FOCUS.getName())) {
+				if (property.endsWith(Command.FOCUS_MODE.getName())) {
+					if (value.equals("1")) {
+						manualFocus();
+					} else if (value.equals("0")) {
+						autoFocus();
+					}
+				} else if (property.endsWith(Command.FOCUS_ONE_PUSH.getName())) {
+					onePushFocus();
+				} else if (property.endsWith(FocusControl.FAR.getName())) {
+					focusFar();
+				} else if (property.endsWith(FocusControl.NEAR.getName())) {
+					focusNear();
+				}
+			}
+
+			// Exposure
+			else if (property.startsWith(Command.EXPOSURE.getName())) {
+				// Backlight
+				if (property.endsWith(Command.BACKLIGHT.getName())) {
+					if (value.equals("1")) {
+						backlightOn();
+					} else if (value.equals("0")) {
+						backlightOff();
+					}
+				}
+
+				// AE mode
+				else if (property.endsWith(Command.AE_MODE.getName())) {
+					if (value.equals(AEMode.FULL_AUTO.getName())) {
+						aeFullAuto();
+					} else if (value.equals(AEMode.MANUAL.getName())) {
+						aeManual();
+					} else if (value.equals(AEMode.IRIS_PRIORITY.getName())) {
+						aeIrisPriority();
+					} else if (value.equals(AEMode.SHUTTER_PRIORITY.getName())) {
+						aeShutterPriority();
+					}
+				}
+
+				// Direct
+				else if (property.endsWith(Command.EXP_COMP_DIRECT.getName())) {
+					float exposureValue = Float.parseFloat(value);
+					expCompDirect((int) exposureValue);
+				} else if (property.endsWith(Command.GAIN_LIMIT_DIRECT.getName())) {
+					float gainLimitLevel = Float.parseFloat(value);
+					gainLimitDirect((int) gainLimitLevel);
+				} else if (property.endsWith(Command.GAIN_DIRECT.getName())) {
+					float gainLevel = Float.parseFloat(value);
+					gainDirect((int) gainLevel);
+				} else if (property.endsWith(Command.IRIS_DIRECT.getName())) {
+					float irisLevel = Float.parseFloat(value);
+					irisDirect((int) irisLevel);
+				} else if (property.endsWith(Command.SHUTTER_DIRECT.getName())) {
+					float shutterSpeed = Float.parseFloat(value);
+					shutterDirect((int) shutterSpeed);
+				}
+
+				// Auto slow shutter
+				else if (property.endsWith(Command.AUTO_SLOW_SHUTTER.getName())) {
+					if (value.equals("1")) {
+						slowShutterOn();
+					} else if (value.equals("0")) {
+						slowShutterOff();
+					}
+				}
+			}
+
+			// Image process
+			else if (property.startsWith(Command.IMAGE_PROCESS.getName())) {
+				// WB mode
+				if (property.endsWith(Command.WB_MODE.getName())) {
+					if (value.equals(WBMode.AUTO.getName())) {
+						wbAuto();
+					} else if (value.equals(WBMode.INDOOR.getName())) {
+						wbIndoor();
+					} else if (value.equals(WBMode.OUTDOOR.getName())) {
+						wbOutdoor();
+					} else if (value.equals(WBMode.ONE_PUSH_WB.getName())) {
+						wbOnePush();
+					} else if (value.equals(WBMode.MANUAL.getName())) {
+						wbManual();
+					}
+				}
+
+				// WB one push trigger
+				else if (property.endsWith(Command.WB_ONE_PUSH_TRIGGER.getName())) {
+					wbOnePushTrigger();
+				}
+
+				// RGain
+				else if (property.endsWith(Command.RGAIN.getName() + RGainControl.UP.getName())) {
+					rGainUp();
+				} else if (property.endsWith(Command.RGAIN.getName() + RGainControl.DOWN.getName())) {
+					rGainDown();
+				}
+
+				// BGain
+				else if (property.endsWith(Command.BGAIN.getName() + BGainControl.UP.getName())) {
+					bGainUp();
+				} else if (property.endsWith(Command.BGAIN.getName() + BGainControl.DOWN.getName())) {
+					bGainDown();
+				}
+			}
+
+			// Pan tilt drive
+			else if (property.startsWith(Command.PAN_TILT_DRIVE.getName())) {
+				if (property.endsWith(PanTiltDrive.UP.getName())) {
+					panTiltUp();
+				} else if (property.endsWith(PanTiltDrive.DOWN.getName())) {
+					panTiltDown();
+				} else if (property.endsWith(PanTiltDrive.UP_LEFT.getName())) {
+					panTiltUpLeft();
+				} else if (property.endsWith(PanTiltDrive.UP_RIGHT.getName())) {
+					panTiltUpRight();
+				} else if (property.endsWith(PanTiltDrive.DOWN_LEFT.getName())) {
+					panTiltDownLeft();
+				} else if (property.endsWith(PanTiltDrive.DOWN_RIGHT.getName())) {
+					pantTiltDownRight();
+				} else if (property.endsWith(PanTiltDrive.LEFT.getName())) {
+					panTiltLeft();
+				} else if (property.endsWith(PanTiltDrive.RIGHT.getName())) {
+					panTiltRight();
+				} else if (property.endsWith(Command.PAN_TILT_HOME.getName())) {
+					panTiltHome();
+				} else if (property.endsWith(Command.SLOW_PAN_TILT.getName())) {
+					if (value.equals("1")) {
+						slowPanTiltOn();
+					} else if (value.equals("0")) {
+						slowPanTiltOff();
+					}
+				}
+			}
+
+			// Preset
+			else if (property.startsWith(Command.PRESET.getName())) {
+				if (property.endsWith(PresetControl.SET.getName())) {
+					setPreset(Integer.parseInt(value));
+				} else if (property.endsWith(PresetControl.RECALL.getName())) {
+					recallPreset(Integer.parseInt(value));
+				}
+			}
+		} finally {
+			controlOperationsLock.unlock();
+		}
 	}
 
 	/**
@@ -193,7 +382,13 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 */
 	@Override
 	public void controlProperties(List<ControllableProperty> controllableProperties) {
-
+		controllableProperties.forEach(p -> {
+			try {
+				controlProperty(p);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	/**
@@ -296,6 +491,820 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			populatePresetControl(stats, advancedControllableProperties);
 		}
 	}
+
+	//region Control device
+
+	/**
+	 * This method is used to control power on
+	 */
+	public void powerOn() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.POWER.getCode(), PowerStatus.ON.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during power on send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control power off
+	 */
+	public void powerOff() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.POWER.getCode(), PowerStatus.OFF.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during power off send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control zoom tele
+	 */
+	public void zoomTele() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.ZOOM.getCode(), ZoomControl.TELE.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during zoom tele send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control zoom wide
+	 */
+	public void zoomWide() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.ZOOM.getCode(), ZoomControl.WIDE.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during zoom wide send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control focus far
+	 */
+	public void focusFar() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.FOCUS.getCode(), FocusControl.FAR.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during focus far send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control focus near
+	 */
+	public void focusNear() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.FOCUS.getCode(), FocusControl.NEAR.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during focus near send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control auto-focus mode
+	 */
+	public void autoFocus() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.FOCUS_MODE.getCode(), FocusMode.AUTO.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during auto-focus mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control manual focus mode
+	 */
+	public void manualFocus() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.FOCUS_MODE.getCode(), FocusMode.MANUAL.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during focus mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control one push focus
+	 */
+	public void onePushFocus() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.FOCUS_ONE_PUSH.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during one push focus send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control wb auto mode
+	 */
+	public void wbAuto() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.WB_MODE.getCode(), WBMode.AUTO.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during wb auto mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control wb indoor mode
+	 */
+	public void wbIndoor() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.WB_MODE.getCode(), WBMode.INDOOR.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during wb indoor mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control wb outdoor mode
+	 */
+	public void wbOutdoor() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.WB_MODE.getCode(), WBMode.OUTDOOR.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during wb outdoor mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control wb one push mode
+	 */
+	public void wbOnePush() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.WB_MODE.getCode(), WBMode.ONE_PUSH_WB.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during wb one push mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control wb manual mode
+	 */
+	public void wbManual() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.WB_MODE.getCode(), WBMode.MANUAL.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during wb manual mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control wb one push trigger
+	 */
+	public void wbOnePushTrigger() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.WB_ONE_PUSH_TRIGGER.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during wb one push trigger send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control RGain up
+	 */
+	public void rGainUp() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.RGAIN.getCode(), RGainControl.UP.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during RGain up send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control RGain down
+	 */
+	public void rGainDown() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.RGAIN.getCode(), RGainControl.DOWN.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during RGain down send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control BGain up
+	 */
+	public void bGainUp() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.BGAIN.getCode(), BGainControl.UP.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during BGain up send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control BGain down
+	 */
+	public void bGainDown() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.BGAIN.getCode(), BGainControl.DOWN.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during BGain down send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control AE full auto mode
+	 */
+	public void aeFullAuto() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during AE full auto mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control AE manual mode
+	 */
+	public void aeManual() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.AE_MODE.getCode(), AEMode.MANUAL.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during AE manual mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control AE iris priority mode
+	 */
+	public void aeIrisPriority() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.AE_MODE.getCode(), AEMode.IRIS_PRIORITY.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during AE iris priority mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control AE shutter priority mode
+	 */
+	public void aeShutterPriority() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.AE_MODE.getCode(), AEMode.SHUTTER_PRIORITY.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during AE shutter priority mode send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control slow shutter on
+	 */
+	public void slowShutterOn() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.ON.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during slow shutter on send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control slow shutter off
+	 */
+	public void slowShutterOff() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.OFF.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during slow shutter off send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control shutter direct
+	 *
+	 * @param shutterSpeed This is shutter speed value to direct
+	 */
+	public void shutterDirect(int shutterSpeed) {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.SHUTTER_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) shutterSpeed)));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during shutter direct send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control iris level
+	 *
+	 * @param irisLevel This is iris level value to direct
+	 */
+	public void irisDirect(int irisLevel) {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.IRIS_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) irisLevel)));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during iris direct send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control gain level
+	 *
+	 * @param gainLevel This is gain level value to direct
+	 */
+	public void gainDirect(int gainLevel) {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.GAIN_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) gainLevel)));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during gain direct send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control gain limit level
+	 *
+	 * @param gainLimitLevel This is gain limit level value to direct
+	 */
+	public void gainLimitDirect(int gainLimitLevel) {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.GAIN_LIMIT_DIRECT.getCode(), (byte) gainLimitLevel));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during gain limit direct send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to control exposure value
+	 *
+	 * @param exposureValue This is exposure value to direct
+	 */
+	public void expCompDirect(int exposureValue) {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.EXP_COMP_DIRECT.getCode(), convertOneByteNumberToTwoBytesArray((byte) exposureValue)));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during exp comp direct send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to backlight on
+	 */
+	public void backlightOn() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.BACKLIGHT.getCode(), BacklightStatus.ON.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during backlight on send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to backlight off
+	 */
+	public void backlightOff() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.BACKLIGHT.getCode(), BacklightStatus.OFF.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during backlight off send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to set preset
+	 *
+	 * @param preset This is preset value to set
+	 */
+	public void setPreset(int preset) {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.PRESET.getCode(), PresetControl.SET.getCode(), (byte) preset));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during set preset send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to recall preset
+	 *
+	 * @param preset This is preset value to recall
+	 */
+	public void recallPreset(int preset) {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+					Command.PRESET.getCode(), PresetControl.RECALL.getCode(), (byte) preset));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during recall preset send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to slow pan tilt on
+	 */
+	public void slowPanTiltOn() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.ON.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during slow pan tilt on send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to slow pan tilt off
+	 */
+	public void slowPanTiltOff() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.OFF.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during slow pan tilt off send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt up
+	 */
+	public void panTiltUp() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.UP.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt up send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt down
+	 */
+	public void panTiltDown() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.DOWN.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt down send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt left
+	 */
+	public void panTiltLeft() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.LEFT.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt left send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt right
+	 */
+	public void panTiltRight() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.RIGHT.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt right send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt up left
+	 */
+	public void panTiltUpLeft() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.UP_LEFT.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt up left send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt up right
+	 */
+	public void panTiltUpRight() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.UP_RIGHT.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt up right send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt down left
+	 */
+	public void panTiltDownLeft() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.DOWN_LEFT.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt down left send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt down right
+	 */
+	public void pantTiltDownRight() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+			outputStream.write(PanTiltDrive.DOWN_RIGHT.getCode());
+
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt down right send", e);
+			}
+		}
+	}
+
+	/**
+	 * This method is used to drive pan tilt home
+	 */
+	public void panTiltHome() {
+		try {
+			int currentSeqNum = ++sequenceNumber;
+			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+					Command.PAN_TILT_HOME.getCode()));
+
+			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
+		} catch (Exception e) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("error during pan tilt home send", e);
+			}
+		}
+	}
+	//endregion
 
 	//region Populate control properties
 	//--------------------------------------------------------------------------------------------------------------------------------
@@ -1192,7 +2201,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		AdvancedControllableProperty.Button button = new AdvancedControllableProperty.Button();
 		button.setLabel(label);
 		button.setLabelPressed("Running...");
-		button.setGracePeriod(1000L);
+		button.setGracePeriod(30L);
 
 		return new AdvancedControllableProperty(name, new Date(), button, "");
 	}
