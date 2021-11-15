@@ -3,7 +3,7 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SUFFIX;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.BYTE_SUFFIX;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class AverPTZUtils {
 			}
 		}
 
-		bytes.add(SUFFIX);
+		bytes.add(BYTE_SUFFIX);
 
 		byte[] byteArray = new byte[bytes.size()];
 		for (int i = 0; i < bytes.size(); i++) {
