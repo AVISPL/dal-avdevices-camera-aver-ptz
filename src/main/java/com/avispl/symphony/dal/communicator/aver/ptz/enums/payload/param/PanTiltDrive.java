@@ -3,6 +3,9 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * This class is used to define pan tilt drive
  *
@@ -44,5 +47,16 @@ public enum PanTiltDrive {
 	 */
 	public byte[] getCode() {
 		return code;
+	}
+
+	/**
+	 * This method is used to get PanTiltDrive by name
+	 *
+	 * @param name is the name of PanTiltDrive that want to get
+	 * @return PanTiltDrive is the PanTiltDrive that want to get
+	 */
+	public static PanTiltDrive getByName(String name) {
+		Optional<PanTiltDrive> panTiltDrive = Arrays.stream(PanTiltDrive.values()).filter(panTilt -> panTilt.getName().equals(name)).findFirst();
+		return panTiltDrive.orElse(null);
 	}
 }
