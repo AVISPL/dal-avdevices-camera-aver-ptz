@@ -24,6 +24,8 @@ import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RAN
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_SHUTTER_VALUE;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RGAIN_START;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SHUTTER_VALUES;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SWITCH_STATUS_OFF;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SWITCH_STATUS_ON;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.buildSendPacket;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.convertIntToByteArray;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.convertOneByteNumberToTwoBytesArray;
@@ -208,171 +210,227 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		String value = String.valueOf(controllableProperty.getValue());
 		controlOperationsLock.lock();
 
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("controlProperty property " + property);
+			this.logger.debug("controlProperty value " + value);
+		}
+
 		try {
-			// Power
-			if (property.startsWith(Command.POWER.getName())) {
-				if (value.equals("1")) {
-					powerOn();
-				} else if (value.equals("0")) {
-					powerOff();
-				}
-			}
+			String[] splitProperty = property.split(String.valueOf(HASH));
+			Command command = Command.getByName(splitProperty[0]);
 
-			// Zoom
-			else if (property.startsWith(Command.ZOOM.getName())) {
-				if (property.endsWith(ZoomControl.TELE.getName())) {
-					zoomTele();
-				} else if (property.endsWith(ZoomControl.WIDE.getName())) {
-					zoomWide();
-				}
-			}
-
-			// Focus
-			else if (property.startsWith(Command.FOCUS.getName())) {
-				if (property.endsWith(Command.FOCUS_MODE.getName())) {
-					if (value.equals("1")) {
-						manualFocus();
-					} else if (value.equals("0")) {
-						autoFocus();
+			switch (command) {
+				case POWER: {
+					if (value.equals(SWITCH_STATUS_ON)) {
+						powerOn();
+					} else if (value.equals(SWITCH_STATUS_OFF)) {
+						powerOff();
 					}
-				} else if (property.endsWith(Command.FOCUS_ONE_PUSH.getName())) {
-					onePushFocus();
-				} else if (property.endsWith(FocusControl.FAR.getName())) {
-					focusFar();
-				} else if (property.endsWith(FocusControl.NEAR.getName())) {
-					focusNear();
+					break;
 				}
-			}
-
-			// Exposure
-			else if (property.startsWith(Command.EXPOSURE.getName())) {
-				// Backlight
-				if (property.endsWith(Command.BACKLIGHT.getName())) {
-					if (value.equals("1")) {
-						backlightOn();
-					} else if (value.equals("0")) {
-						backlightOff();
+				case ZOOM: {
+					if (splitProperty[1].equals(ZoomControl.TELE.getName())) {
+						zoomTele();
+					} else if (splitProperty[1].equals(ZoomControl.WIDE.getName())) {
+						zoomWide();
 					}
+					break;
 				}
-
-				// AE mode
-				else if (property.endsWith(Command.AE_MODE.getName())) {
-					if (value.equals(AEMode.FULL_AUTO.getName())) {
-						aeFullAuto();
-					} else if (value.equals(AEMode.MANUAL.getName())) {
-						aeManual();
-					} else if (value.equals(AEMode.IRIS_PRIORITY.getName())) {
-						aeIrisPriority();
-					} else if (value.equals(AEMode.SHUTTER_PRIORITY.getName())) {
-						aeShutterPriority();
+				case FOCUS: {
+					if (splitProperty[1].equals(Command.FOCUS_MODE.getName())) {
+						if (value.equals(SWITCH_STATUS_ON)) {
+							manualFocus();
+						} else if (value.equals(SWITCH_STATUS_OFF)) {
+							autoFocus();
+						}
+						break;
 					}
-				}
 
-				// Direct
-				else if (property.endsWith(Command.EXP_COMP_DIRECT.getName())) {
-					float exposureValue = Float.parseFloat(value);
-					expCompDirect((int) exposureValue);
-				} else if (property.endsWith(Command.GAIN_LIMIT_DIRECT.getName())) {
-					float gainLimitLevel = Float.parseFloat(value);
-					gainLimitDirect((int) gainLimitLevel);
-				} else if (property.endsWith(Command.GAIN_DIRECT.getName())) {
-					float gainLevel = Float.parseFloat(value);
-					gainDirect((int) gainLevel);
-				} else if (property.endsWith(Command.IRIS_DIRECT.getName())) {
-					float irisLevel = Float.parseFloat(value);
-					irisDirect((int) irisLevel);
-				} else if (property.endsWith(Command.SHUTTER_DIRECT.getName())) {
-					float shutterSpeed = Float.parseFloat(value);
-					shutterDirect((int) shutterSpeed);
-				}
-
-				// Auto slow shutter
-				else if (property.endsWith(Command.AUTO_SLOW_SHUTTER.getName())) {
-					if (value.equals("1")) {
-						slowShutterOn();
-					} else if (value.equals("0")) {
-						slowShutterOff();
+					if (splitProperty[1].equals(Command.FOCUS_ONE_PUSH.getName())) {
+						onePushFocus();
+						break;
 					}
-				}
-			}
 
-			// Image process
-			else if (property.startsWith(Command.IMAGE_PROCESS.getName())) {
-				// WB mode
-				if (property.endsWith(Command.WB_MODE.getName())) {
-					if (value.equals(WBMode.AUTO.getName())) {
-						wbAuto();
-					} else if (value.equals(WBMode.INDOOR.getName())) {
-						wbIndoor();
-					} else if (value.equals(WBMode.OUTDOOR.getName())) {
-						wbOutdoor();
-					} else if (value.equals(WBMode.ONE_PUSH_WB.getName())) {
-						wbOnePush();
-					} else if (value.equals(WBMode.MANUAL.getName())) {
-						wbManual();
+					if (splitProperty[1].equals(FocusControl.FAR.getName())) {
+						focusFar();
+					} else if (splitProperty[1].equals(FocusControl.NEAR.getName())) {
+						focusNear();
 					}
+					break;
 				}
-
-				// WB one push trigger
-				else if (property.endsWith(Command.WB_ONE_PUSH_TRIGGER.getName())) {
-					wbOnePushTrigger();
-				}
-
-				// RGain
-				else if (property.endsWith(Command.RGAIN.getName() + RGainControl.UP.getName())) {
-					rGainUp();
-				} else if (property.endsWith(Command.RGAIN.getName() + RGainControl.DOWN.getName())) {
-					rGainDown();
-				}
-
-				// BGain
-				else if (property.endsWith(Command.BGAIN.getName() + BGainControl.UP.getName())) {
-					bGainUp();
-				} else if (property.endsWith(Command.BGAIN.getName() + BGainControl.DOWN.getName())) {
-					bGainDown();
-				}
-			}
-
-			// Pan tilt drive
-			else if (property.startsWith(Command.PAN_TILT_DRIVE.getName())) {
-				if (property.endsWith(PanTiltDrive.UP.getName())) {
-					panTiltUp();
-				} else if (property.endsWith(PanTiltDrive.DOWN.getName())) {
-					panTiltDown();
-				} else if (property.endsWith(PanTiltDrive.UP_LEFT.getName())) {
-					panTiltUpLeft();
-				} else if (property.endsWith(PanTiltDrive.UP_RIGHT.getName())) {
-					panTiltUpRight();
-				} else if (property.endsWith(PanTiltDrive.DOWN_LEFT.getName())) {
-					panTiltDownLeft();
-				} else if (property.endsWith(PanTiltDrive.DOWN_RIGHT.getName())) {
-					pantTiltDownRight();
-				} else if (property.endsWith(PanTiltDrive.LEFT.getName())) {
-					panTiltLeft();
-				} else if (property.endsWith(PanTiltDrive.RIGHT.getName())) {
-					panTiltRight();
-				} else if (property.endsWith(Command.PAN_TILT_HOME.getName())) {
-					panTiltHome();
-				} else if (property.endsWith(Command.SLOW_PAN_TILT.getName())) {
-					if (value.equals("1")) {
-						slowPanTiltOn();
-					} else if (value.equals("0")) {
-						slowPanTiltOff();
+				case EXPOSURE: {
+					Command exposureCommand = Command.getByName(splitProperty[1]);
+					switch (exposureCommand) {
+						case BACKLIGHT: {
+							if (value.equals(SWITCH_STATUS_ON)) {
+								backlightOn();
+							} else if (value.equals(SWITCH_STATUS_OFF)) {
+								backlightOff();
+							}
+							break;
+						}
+						case AE_MODE: {
+							if (value.equals(AEMode.FULL_AUTO.getName())) {
+								aeFullAuto();
+							} else if (value.equals(AEMode.MANUAL.getName())) {
+								aeManual();
+							} else if (value.equals(AEMode.IRIS_PRIORITY.getName())) {
+								aeIrisPriority();
+							} else if (value.equals(AEMode.SHUTTER_PRIORITY.getName())) {
+								aeShutterPriority();
+							}
+							break;
+						}
+						case EXP_COMP_DIRECT: {
+							float exposureValue = Float.parseFloat(value);
+							expCompDirect((int) exposureValue);
+							break;
+						}
+						case GAIN_LIMIT_DIRECT: {
+							float gainLimitLevel = Float.parseFloat(value);
+							gainLimitDirect((int) gainLimitLevel);
+							break;
+						}
+						case GAIN_DIRECT: {
+							float gainLevel = Float.parseFloat(value);
+							gainDirect((int) gainLevel);
+							break;
+						}
+						case IRIS_DIRECT: {
+							float irisLevel = Float.parseFloat(value);
+							irisDirect((int) irisLevel);
+							break;
+						}
+						case SHUTTER_DIRECT: {
+							float shutterSpeed = Float.parseFloat(value);
+							shutterDirect((int) shutterSpeed);
+							break;
+						}
+						case AUTO_SLOW_SHUTTER: {
+							if (value.equals(SWITCH_STATUS_ON)) {
+								slowShutterOn();
+							} else if (value.equals(SWITCH_STATUS_OFF)) {
+								slowShutterOff();
+							}
+							break;
+						}
+						default: {
+							break;
+						}
 					}
+					break;
 				}
-			}
+				case IMAGE_PROCESS: {
+					// RGain
+					if (splitProperty[1].equals(Command.RGAIN.getName() + RGainControl.UP.getName())) {
+						rGainUp();
+						break;
+					} else if (splitProperty[1].equals(Command.RGAIN.getName() + RGainControl.DOWN.getName())) {
+						rGainDown();
+						break;
+					}
 
-			// Preset
-			else if (property.startsWith(Command.PRESET.getName())) {
-				if (property.endsWith(PresetControl.SET.getName())) {
-					setPreset(Integer.parseInt(value));
-				} else if (property.endsWith(PresetControl.RECALL.getName())) {
-					recallPreset(Integer.parseInt(value));
+					// BGain
+					if (splitProperty[1].equals(Command.BGAIN.getName() + BGainControl.UP.getName())) {
+						bGainUp();
+						break;
+					} else if (splitProperty[1].equals(Command.BGAIN.getName() + BGainControl.DOWN.getName())) {
+						bGainDown();
+						break;
+					}
+
+					Command imageProcessCommand = Command.getByName(splitProperty[1]);
+					switch (imageProcessCommand) {
+						case WB_MODE: {
+							if (value.equals(WBMode.AUTO.getName())) {
+								wbAuto();
+							} else if (value.equals(WBMode.INDOOR.getName())) {
+								wbIndoor();
+							} else if (value.equals(WBMode.OUTDOOR.getName())) {
+								wbOutdoor();
+							} else if (value.equals(WBMode.ONE_PUSH_WB.getName())) {
+								wbOnePush();
+							} else if (value.equals(WBMode.MANUAL.getName())) {
+								wbManual();
+							}
+							break;
+						}
+						case WB_ONE_PUSH_TRIGGER: {
+							wbOnePushTrigger();
+							break;
+						}
+						default: {
+							break;
+						}
+					}
+					break;
+				}
+				case PAN_TILT_DRIVE: {
+					if (splitProperty[1].equals(Command.PAN_TILT_HOME.getName())) {
+						panTiltHome();
+						break;
+					} else if (splitProperty[1].equals(Command.SLOW_PAN_TILT.getName())) {
+						if (value.equals(SWITCH_STATUS_ON)) {
+							slowPanTiltOn();
+						} else if (value.equals(SWITCH_STATUS_OFF)) {
+							slowPanTiltOff();
+						}
+						break;
+					}
+
+					PanTiltDrive pantTiltDrive = PanTiltDrive.getByName(splitProperty[1]);
+					switch (pantTiltDrive) {
+						case UP: {
+							panTiltUp();
+							break;
+						}
+						case DOWN: {
+							panTiltDown();
+							break;
+						}
+						case LEFT: {
+							panTiltLeft();
+							break;
+						}
+						case RIGHT: {
+							panTiltRight();
+							break;
+						}
+						case UP_LEFT: {
+							panTiltUpLeft();
+							break;
+						}
+						case UP_RIGHT: {
+							panTiltUpRight();
+							break;
+						}
+						case DOWN_LEFT: {
+							panTiltDownLeft();
+							break;
+						}
+						case DOWN_RIGHT: {
+							pantTiltDownRight();
+							break;
+						}
+					}
+					break;
+				}
+				case PRESET: {
+					if (splitProperty[1].equals(PresetControl.SET.getName())) {
+						setPreset(Integer.parseInt(value));
+					} else if (splitProperty[1].equals(PresetControl.RECALL.getName())) {
+						recallPreset(Integer.parseInt(value));
+					}
+					break;
+				}
+				default: {
+					break;
 				}
 			}
 		} finally {
 			controlOperationsLock.unlock();
 		}
+
 	}
 
 	/**

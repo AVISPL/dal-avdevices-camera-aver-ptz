@@ -3,6 +3,9 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * This class is used to define command used to build payload
  *
@@ -66,5 +69,16 @@ public enum Command {
 	 */
 	public byte[] getCode() {
 		return code;
+	}
+
+	/**
+	 * This method is used to get Command by name
+	 *
+	 * @param name is the name of command that want to get
+	 * @return Command is the command that want to get
+	 */
+	public static Command getByName(String name) {
+		Optional<Command> command = Arrays.stream(Command.values()).filter(com -> com.getName().equals(name)).findFirst();
+		return command.orElse(null);
 	}
 }
