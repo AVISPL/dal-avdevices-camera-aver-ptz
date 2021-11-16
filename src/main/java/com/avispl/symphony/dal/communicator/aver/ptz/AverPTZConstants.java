@@ -51,4 +51,7 @@ public class AverPTZConstants {
 	public static final String BGAIN_START = "0";
 	public static final String SWITCH_STATUS_ON = "1";
 	public static final String SWITCH_STATUS_OFF = "0";
+	public static final long PAN_TILT_PERIOD = 3000;
+	public static final String PLUS = "+";
+	public static final String MINUS = "-";
 }

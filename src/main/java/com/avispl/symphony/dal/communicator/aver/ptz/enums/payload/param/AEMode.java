@@ -3,6 +3,9 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * This class is used to define AEMode
  *
@@ -40,5 +43,16 @@ public enum AEMode {
 	 */
 	public byte getCode() {
 		return code;
+	}
+
+	/**
+	 * This method is used to get AE Mode by name
+	 *
+	 * @param name is the name of ae mode that want to get
+	 * @return AEMode is the wb mode that want to get
+	 */
+	public static AEMode getByName(String name) {
+		Optional<AEMode> mode = Arrays.stream(AEMode.values()).filter(com -> com.getName().equals(name)).findFirst();
+		return mode.orElse(null);
 	}
 }

@@ -14,6 +14,7 @@ import java.util.Optional;
  * @since 1.0
  */
 public enum PanTiltDrive {
+	STOP("Stop", new byte[] { 0x03, 0x03 }),
 	UP("Up", new byte[] { 0x03, 0x01 }),
 	DOWN("Down", new byte[] { 0x03, 0x02 }),
 	LEFT("Left", new byte[] { 0x01, 0x03 }),
