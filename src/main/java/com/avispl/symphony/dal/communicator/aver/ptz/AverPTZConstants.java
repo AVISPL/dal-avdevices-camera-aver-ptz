@@ -49,4 +49,9 @@ public class AverPTZConstants {
 			Arrays.asList("0", "F14", "F11", "F8.0", "F6.8", "F5.6", "F4.8", "F4.0", "F3.4", "F2.8", "F2.4", "F2.0", "F1.8", "F1.6"));
 	public static final String RGAIN_START = "0";
 	public static final String BGAIN_START = "0";
+	public static final String SWITCH_STATUS_ON = "1";
+	public static final String SWITCH_STATUS_OFF = "0";
+	public static final long PAN_TILT_PERIOD = 3000;
+	public static final String PLUS = "+";
+	public static final String MINUS = "-";
 }

@@ -440,7 +440,7 @@ public class AverPTZCommunicatorTest {
 
 		// Exception rule for command failure exception
 		exceptionRule.expect(CommandFailureException.class);
-		exceptionRule.expectMessage("Error response received from: 172.31.254.204. Request: 01,00,00,06,00,00,00,04,81,01,04,08,02,FF; response: 01,11,00,04,00,00,00,04,90,60,41,FF");
+		exceptionRule.expectMessage("Error response received from: 172.31.254.204. Request: 01,00,00,06,00,00,00,04,81,01,04,08,20,FF; response: 01,11,00,04,00,00,00,04,90,60,41,FF");
 
 		// Send control command to trigger focus far
 		// Throw command failure exception in doneReading() because change focus position while in "Auto" mode

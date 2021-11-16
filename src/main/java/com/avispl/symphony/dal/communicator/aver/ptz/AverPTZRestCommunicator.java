@@ -3,7 +3,16 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.*;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DEVICE_FIRMWARE_VERSION_LABEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DEVICE_MFG;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DEVICE_MODEL_LABEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DEVICE_SERIAL_NUMBER_VERSION_LABEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.EQUAL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.GET_DEVICE_INFO_URL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HTTP_PREFIX;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.MAC_LABEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.MAC_PREFIX;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SEMICOLON;
 
 import com.avispl.symphony.dal.communicator.RestCommunicator;
 import com.avispl.symphony.dal.communicator.aver.ptz.dto.DeviceInfo;
