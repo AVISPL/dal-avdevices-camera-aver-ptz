@@ -76,8 +76,9 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketZoomTele() {
+		int zoomSpeed = 1;
 		byte[] actualPacketZoomTele = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-				Command.ZOOM.getCode(), ZoomControl.TELE.getCode());
+				Command.ZOOM.getCode(), (byte) (ZoomControl.TELE.getCode() + zoomSpeed));
 
 		assertArrayEquals(SendPacket.ZOOM_TELE.getCode(), actualPacketZoomTele);
 	}
@@ -88,10 +89,23 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketZoomWide() {
+		int zoomSpeed = 1;
 		byte[] actualPacketZoomWide = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-				Command.ZOOM.getCode(), ZoomControl.WIDE.getCode());
+				Command.ZOOM.getCode(), (byte) (ZoomControl.WIDE.getCode() + zoomSpeed));
 
 		assertArrayEquals(SendPacket.ZOOM_WIDE.getCode(), actualPacketZoomWide);
+	}
+
+	/**
+	 * Test AverPTZUtils#buildSendPacket success
+	 * Expect build a control command for zoom stop which match expected packet
+	 */
+	@Test
+	public void testBuildSendPacketZoomStop() {
+		byte[] actualPacketZoomStop = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+				Command.ZOOM.getCode(), ZoomControl.STOP.getCode());
+
+		assertArrayEquals(SendPacket.ZOOM_STOP.getCode(), actualPacketZoomStop);
 	}
 
 	/**
@@ -100,8 +114,9 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketFocusFar() {
+		int focusSpeed = 1;
 		byte[] actualPacketFocusFar = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-				Command.FOCUS.getCode(), FocusControl.FAR.getCode());
+				Command.FOCUS.getCode(), (byte) (FocusControl.FAR.getCode() + focusSpeed));
 
 		assertArrayEquals(SendPacket.FOCUS_FAR.getCode(), actualPacketFocusFar);
 	}
@@ -112,10 +127,23 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketFocusNear() {
+		int focusSpeed = 1;
 		byte[] actualPacketFocusNear = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-				Command.FOCUS.getCode(), FocusControl.NEAR.getCode());
+				Command.FOCUS.getCode(), (byte) (FocusControl.NEAR.getCode() + focusSpeed));
 
 		assertArrayEquals(SendPacket.FOCUS_NEAR.getCode(), actualPacketFocusNear);
+	}
+
+	/**
+	 * Test AverPTZUtils#buildSendPacket success
+	 * Expect build a control command for focus stop which match expected packet
+	 */
+	@Test
+	public void testBuildSendPacketFocusStop() {
+		byte[] actualPacketFocusNear = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
+				Command.FOCUS.getCode(), FocusControl.STOP.getCode());
+
+		assertArrayEquals(SendPacket.FOCUS_STOP.getCode(), actualPacketFocusNear);
 	}
 
 	/**
@@ -494,6 +522,22 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive up which match expected packet
 	 */
 	@Test
+	public void testBuildSendPacketPanTiltDriveStop() throws IOException {
+		outputStream = new ByteArrayOutputStream();
+		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+		outputStream.write(PanTiltDrive.STOP.getCode());
+
+		byte[] actualPacketPanTiltStop = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
+				Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray());
+
+		assertArrayEquals(SendPacket.PAN_TILT_DRIVE_STOP.getCode(), actualPacketPanTiltStop);
+	}
+
+	/**
+	 * Test AverPTZUtils#buildSendPacket success
+	 * Expect build a control command for pan-tilt drive up which match expected packet
+	 */
+	@Test
 	public void testBuildSendPacketPanTiltDriveUp() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -646,7 +690,8 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketFocusStatusInq() {
-		byte[] actualPacketFocusInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.FOCUS_MODE.getCode());
+		byte[] actualPacketFocusInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
+				Command.FOCUS_MODE.getCode());
 
 		assertArrayEquals(SendPacket.FOCUS_STATUS_INQ.getCode(), actualPacketFocusInq);
 	}
@@ -763,7 +808,8 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketRGainInq() {
-		byte[] actualPacketRGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.RGAIN_INQ.getCode());
+		byte[] actualPacketRGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
+				Command.RGAIN_INQ.getCode());
 
 		assertArrayEquals(SendPacket.RGAIN_INQ.getCode(), actualPacketRGainInq);
 	}
@@ -774,7 +820,8 @@ public class AverPTZUtilsTest {
 	 */
 	@Test
 	public void testBuildSendPacketBGainInq() {
-		byte[] actualPacketBGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.BGAIN_INQ.getCode());
+		byte[] actualPacketBGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
+				Command.BGAIN_INQ.getCode());
 
 		assertArrayEquals(SendPacket.BGAIN_INQ.getCode(), actualPacketBGainInq);
 	}

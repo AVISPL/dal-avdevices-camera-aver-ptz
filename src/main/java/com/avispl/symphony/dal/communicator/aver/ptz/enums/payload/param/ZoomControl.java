@@ -11,8 +11,9 @@ package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param;
  * @since 1.0
  */
 public enum ZoomControl {
-	TELE("Tele", (byte) 0x02),
-	WIDE("Wide", (byte) 0x03);
+	TELE("ZoomIn", (byte) 0x20),
+	WIDE("ZoomOut", (byte) 0x30),
+	STOP("Stop", (byte) 0x00);
 
 	private final String name;
 	private final byte code;

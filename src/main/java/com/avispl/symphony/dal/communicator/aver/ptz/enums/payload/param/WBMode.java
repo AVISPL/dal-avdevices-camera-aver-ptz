@@ -3,6 +3,9 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * This class is used to define wb mode
  *
@@ -41,5 +44,16 @@ public enum WBMode {
 	 */
 	public byte getCode() {
 		return code;
+	}
+
+	/**
+	 * This method is used to get WB Mode by name
+	 *
+	 * @param name is the name of wb mode that want to get
+	 * @return WBMode is the wb mode that want to get
+	 */
+	public static WBMode getByName(String name) {
+		Optional<WBMode> mode = Arrays.stream(WBMode.values()).filter(com -> com.getName().equals(name)).findFirst();
+		return mode.orElse(null);
 	}
 }

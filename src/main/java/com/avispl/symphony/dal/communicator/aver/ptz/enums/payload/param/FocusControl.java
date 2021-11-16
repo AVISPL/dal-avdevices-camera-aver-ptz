@@ -11,8 +11,9 @@ package com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param;
  * @since 1.0
  */
 public enum FocusControl {
-	FAR("Far", (byte) 0x02),
-	NEAR("Near", (byte) 0x03);
+	FAR("FocusOut", (byte) 0x20),
+	NEAR("FocusIn", (byte) 0x30),
+	STOP("Stop", (byte) 0x00);
 
 	private final String name;
 	private final byte code;
