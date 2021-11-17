@@ -41,16 +41,16 @@
     <dependency>
       <groupId>com.avispl.symphony.api</groupId>
       <artifactId>symphony-api-commons</artifactId>
-      <version>5.1.1</version>
+      <version>5.3.0.11028</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/symphony-api-commons-5.1.1.jar</systemPath>
+      <systemPath>${basedir}/lib/symphony-api-commons-5.3.0.11028.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.avispl.symphony.api</groupId>
       <artifactId>symphony-api-dal</artifactId>
-      <version>5.1.1</version>
+      <version>5.3.0.11028</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/symphony-api-dal-5.1.1.jar</systemPath>
+      <systemPath>${basedir}/lib/symphony-api-dal-5.3.0.11028.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.avispl.symphony.dal</groupId>
