@@ -3,29 +3,32 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.BGAIN_START;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HASH;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.IRIS_LEVELS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.MINUS;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.NONE_VALUE;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.PAN_TILT_PERIOD;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.PLUS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_SHUTTER_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RGAIN_START;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SHUTTER_VALUES;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SWITCH_STATUS_OFF;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SWITCH_STATUS_ON;
@@ -447,7 +450,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		PowerStatus powerStatus = getPowerStatus();
 
 		if (powerStatus == null) {
-			stats.put(Command.POWER.getName(), "None");
+			stats.put(Command.POWER.getName(), NONE_VALUE);
 			return;
 		}
 
@@ -956,7 +959,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		FocusMode focusMode = getFocusStatus();
 
 		if (focusMode == null) {
-			stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), "None");
+			stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), NONE_VALUE);
 			return;
 		}
 
@@ -985,7 +988,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	private void populateAEControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
 		AEMode aeMode = this.getAEMode();
 		if (aeMode == null) {
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), "None");
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), NONE_VALUE);
 			return;
 		}
 
@@ -1064,7 +1067,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		// Getting backlight status
 		BacklightStatus backlightStatus = getBacklightStatus();
 		if (backlightStatus == null) {
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), "None");
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), NONE_VALUE);
 			return;
 		}
 
@@ -1084,11 +1087,20 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateExposureControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		String exposureValue = this.getExposureValue();
+
+		if (exposureValue == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), NONE_VALUE);
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), this.getExposureValue());
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), exposureValue);
+		// Exposure value: -4 -> 4, Value on slider: 1 -> 9 => Value on slider = Exposure value + 5
 		advancedControllableProperties.add(
 				createSlider(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), LABEL_START_EXPOSURE_VALUE, LABEL_END_EXPOSURE_VALUE,
-						RANGE_START_EXPOSURE_VALUE, RANGE_END_EXPOSURE_VALUE, Float.parseFloat(this.getExposureValue()) + 5));
+						RANGE_START_EXPOSURE_VALUE, RANGE_END_EXPOSURE_VALUE, Float.parseFloat(exposureValue) + 5));
 	}
 
 	/**
@@ -1098,12 +1110,20 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateGainLimitControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		String gainLimitLevel = this.getGainLimitLevel();
+
+		if (gainLimitLevel == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), NONE_VALUE);
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), this.getGainLimitLevel());
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), gainLimitLevel);
 		// Gain limit level: 24, 27, 30,..., 48 -> Value in slider: (gain limit level - 24) /3
 		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), LABEL_START_GAIN_LIMIT_VALUE, LABEL_END_GAIN_LIMIT_VALUE,
-						RANGE_START_GAIN_LIMIT_VALUE, RANGE_END_GAIN_LIMIT_VALUE, (Float.parseFloat(this.getGainLimitLevel()) - 24) / 3));
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), LABEL_START_GAIN_LIMIT_LEVEL, LABEL_END_GAIN_LIMIT_LEVEL,
+						RANGE_START_GAIN_LIMIT_LEVEL, RANGE_END_GAIN_LIMIT_LEVEL, (Float.parseFloat(gainLimitLevel) - 24) / 3));
 	}
 
 	/**
@@ -1115,7 +1135,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 */
 	private void populateAutoSlowShutterControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, SlowShutterStatus autoSlowShutterStatus) {
 		if (autoSlowShutterStatus == null) {
-			stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), "None");
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), NONE_VALUE);
 			return;
 		}
 
@@ -1135,11 +1155,19 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateShutterControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		Entry<Integer, String> shutterSpeed = this.getShutterSpeed();
+
+		if (shutterSpeed == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), NONE_VALUE);
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), this.getShutterSpeed().getValue());
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), shutterSpeed.getValue());
 		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), LABEL_START_SHUTTER_VALUE, LABEL_END_SHUTTER_VALUE, RANGE_START_SHUTTER_VALUE,
-						RANGE_END_SHUTTER_VALUE, this.getShutterSpeed().getKey().floatValue()));
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), LABEL_START_SHUTTER_SPEED, LABEL_END_SHUTTER_SPEED, RANGE_START_SHUTTER_SPEED,
+						RANGE_END_SHUTTER_SPEED, shutterSpeed.getKey().floatValue()));
 	}
 
 	/**
@@ -1149,11 +1177,19 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateIrisControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		Entry<Integer, String> irisLevel = this.getIrisLevel();
+
+		if (irisLevel == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), NONE_VALUE);
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), this.getIrisLevel().getValue());
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), irisLevel.getValue());
 		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), LABEL_START_IRIS_VALUE, LABEL_END_IRIS_VALUE, RANGE_START_IRIS_VALUE,
-						RANGE_END_IRIS_VALUE, this.getIrisLevel().getKey().floatValue()));
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), LABEL_START_IRIS_LEVEL, LABEL_END_IRIS_LEVEL, RANGE_START_IRIS_LEVEL,
+						RANGE_END_IRIS_LEVEL, irisLevel.getKey().floatValue()));
 	}
 
 	/**
@@ -1163,10 +1199,19 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateGainControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		String gainLevel = this.getGainLevel();
+
+		if (gainLevel == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), NONE_VALUE);
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName(), this.getGainLevel());
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName(), gainLevel);
 		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "0", "48", (float) 0, 48F, Float.parseFloat(this.getGainLevel())));
+				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), LABEL_START_GAIN_LEVEL, LABEL_END_GAIN_LEVEL, RANGE_START_GAIN_LEVEL,
+						RANGE_END_GAIN_LEVEL, Float.parseFloat(gainLevel)));
 	}
 
 	/**
@@ -1189,13 +1234,26 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		advancedControllableProperties.add(createDropdown(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), wbModeList, wbMode.getName()));
 
 		if (WBMode.MANUAL.equals(wbMode)) {
+			String rGainValue = this.getRGain();
+			String bGainValue = this.getBGain();
+
+			if (rGainValue == null) {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName(), NONE_VALUE);
+			} else {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName(), rGainValue);
+			}
+
+			if (bGainValue == null) {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN_INQ.getName(), NONE_VALUE);
+			} else {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN_INQ.getName(), bGainValue);
+			}
+
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName(), "");
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.DOWN.getName(), "");
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName(), this.getRGain());
 
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.UP.getName(), "");
 			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.DOWN.getName(), "");
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN_INQ.getName(), this.getBGain());
 
 			advancedControllableProperties.add(
 					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName(), RGainControl.UP.getName()));
@@ -1253,7 +1311,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		SlowPanTiltStatus slowPanTiltStatus = getSlowPanTiltStatus();
 
 		if (slowPanTiltStatus == null) {
-			stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), "None");
+			stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), NONE_VALUE);
 			return;
 		}
 
@@ -1302,7 +1360,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get last preset recalled send", e);
 			}
 		}
-		return "None";
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1426,7 +1484,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get exposure value", e);
 			}
 		}
-		return LABEL_START_EXPOSURE_VALUE;
+		return null;
 	}
 
 	/**
@@ -1449,7 +1507,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get shutter speed", e);
 			}
 		}
-		return new SimpleEntry<>(0, SHUTTER_VALUES.get(0));
+		return null;
 	}
 
 	/**
@@ -1471,7 +1529,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get iris level", e);
 			}
 		}
-		return new SimpleEntry<>(0, IRIS_LEVELS.get(0));
+		return null;
 	}
 
 	/**
@@ -1491,7 +1549,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get gain level", e);
 			}
 		}
-		return LABEL_START_IRIS_VALUE;
+		return null;
 	}
 
 	/**
@@ -1511,7 +1569,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get gain limit level", e);
 			}
 		}
-		return LABEL_START_GAIN_LIMIT_VALUE;
+		return null;
 	}
 
 	/**
@@ -1558,7 +1616,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get RGain value", e);
 			}
 		}
-		return RGAIN_START;
+		return null;
 	}
 
 	/**
@@ -1579,7 +1637,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get BGain value", e);
 			}
 		}
-		return BGAIN_START;
+		return null;
 	}
 
 	/**
