@@ -17,7 +17,7 @@ public enum Command {
 	POWER("Power", new byte[] { 0x00 }),
 	ZOOM("ZoomControl", new byte[] { 0x07 }),
 	FOCUS("FocusControl", new byte[] { 0x08 }),
-	FOCUS_MODE("FocusMode", new byte[] { 0x38 }),
+	FOCUS_MODE("Mode", new byte[] { 0x38 }),
 	FOCUS_ONE_PUSH("OnePush", new byte[] { 0x18, 0x01 }),
 	IMAGE_PROCESS("ImageProcessControl", null),
 	WB_MODE("WBMode", new byte[] { 0x35 }),
