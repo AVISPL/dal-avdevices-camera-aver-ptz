@@ -117,7 +117,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	private int focusSpeed = 1;
 	private int sequenceNumber = 0;
 	private AverPTZRestCommunicator restCommunicator;
-	private DeviceInfo deviceInfo;
+	private DeviceInfo deviceInfo = new DeviceInfo();
 
 	/**
 	 * Constructor set command error and success list to be used as well the default camera ID
@@ -394,13 +394,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			throw new IllegalArgumentException("Tilt speed with value" + this.focusSpeed + " is out of range. Focus speed must between 0 and 7");
 		}
 
-		// Monitoring capabilities
 		try {
 			initAverRestCommunicator();
 			deviceInfo = this.restCommunicator.getDeviceInfo();
-			populateMonitorCapabilities(stats);
-			// Control capabilities
-			populateControlCapabilities(stats, advancedControllableProperties);
 		} catch (Exception e) {
 			if (this.logger.isErrorEnabled()) {
 				this.logger.error("error: Cannot get data from Rest communicator: " + this.host + " port: " + this.port);
@@ -415,6 +411,11 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				}
 			}
 		}
+
+		// Monitoring capabilities
+		populateMonitorCapabilities(stats);
+		// Control capabilities
+		populateControlCapabilities(stats, advancedControllableProperties);
 
 		extStats.setStatistics(stats);
 		extStats.setControllableProperties(advancedControllableProperties);
@@ -444,9 +445,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	private void populateControlCapabilities(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
 		// Getting power status from device
 		PowerStatus powerStatus = getPowerStatus();
+
+		if (powerStatus == null) {
+			stats.put(Command.POWER.getName(), "None");
+			return;
+		}
+
 		stats.put(Command.POWER.getName(), "");
 
-		assert powerStatus != null;
 		if (powerStatus.compareTo(PowerStatus.OFF) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.POWER.getName(), 0, PowerStatus.OFF.getName(), PowerStatus.ON.getName()));
 		} else if (powerStatus.compareTo(PowerStatus.ON) == 0) {
@@ -949,11 +955,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		// Getting focus mode
 		FocusMode focusMode = getFocusStatus();
 
+		if (focusMode == null) {
+			stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), "None");
+			return;
+		}
+
 		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName(), "");
 		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), "");
 		advancedControllableProperties.add(createButton(Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName(), Command.FOCUS_ONE_PUSH.getName()));
-
-		assert focusMode != null;
 
 		if (focusMode.compareTo(FocusMode.AUTO) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), 0, FocusMode.AUTO.getName(), FocusMode.MANUAL.getName()));
@@ -974,6 +983,12 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateAEControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		AEMode aeMode = this.getAEMode();
+		if (aeMode == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), "None");
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), "");
 
 		List<String> aeModeList = new ArrayList<>();
@@ -982,8 +997,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		aeModeList.add(AEMode.SHUTTER_PRIORITY.getName());
 		aeModeList.add(AEMode.MANUAL.getName());
 
-		AEMode aeMode = this.getAEMode();
-		assert aeMode != null;
 		advancedControllableProperties.add(createDropdown(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), aeModeList, aeMode.getName()));
 
 		// Getting auto slow shutter status
@@ -1001,7 +1014,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				populateGainLimitControl(stats, advancedControllableProperties);
 
 				// Populate slow shutter control
-				assert autoSlowShutterStatus != null;
 				populateAutoSlowShutterControl(stats, advancedControllableProperties, autoSlowShutterStatus);
 				break;
 			}
@@ -1024,7 +1036,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				populateGainLimitControl(stats, advancedControllableProperties);
 
 				// Populate slow shutter control
-				assert autoSlowShutterStatus != null;
 				populateAutoSlowShutterControl(stats, advancedControllableProperties, autoSlowShutterStatus);
 
 				// Populate iris control
@@ -1052,8 +1063,12 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	private void populateBacklightControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
 		// Getting backlight status
 		BacklightStatus backlightStatus = getBacklightStatus();
+		if (backlightStatus == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), "None");
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), "");
-		assert backlightStatus != null;
 
 		if (backlightStatus.compareTo(BacklightStatus.OFF) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), 0, BacklightStatus.OFF.getName(), BacklightStatus.ON.getName()));
@@ -1099,7 +1114,13 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param autoSlowShutterStatus is the status of auto slow shutter
 	 */
 	private void populateAutoSlowShutterControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, SlowShutterStatus autoSlowShutterStatus) {
+		if (autoSlowShutterStatus == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), "None");
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), "");
+
 		if (autoSlowShutterStatus.compareTo(SlowShutterStatus.ON) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 1, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
 		} else if (autoSlowShutterStatus.compareTo(SlowShutterStatus.OFF) == 0) {
@@ -1230,9 +1251,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 		// Getting slow pan tilt status
 		SlowPanTiltStatus slowPanTiltStatus = getSlowPanTiltStatus();
+
+		if (slowPanTiltStatus == null) {
+			stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), "None");
+			return;
+		}
+
 		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), "");
 
-		assert slowPanTiltStatus != null;
 		if (slowPanTiltStatus.compareTo(SlowPanTiltStatus.OFF) == 0) {
 			advancedControllableProperties.add(createSwitch(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), 0, SlowPanTiltStatus.OFF.getName(), SlowPanTiltStatus.ON.getName()));
 		} else if (slowPanTiltStatus.compareTo(SlowPanTiltStatus.ON) == 0) {
@@ -1276,7 +1302,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				this.logger.error("error during get last preset recalled send", e);
 			}
 		}
-		return null;
+		return "None";
 	}
 
 	/**
