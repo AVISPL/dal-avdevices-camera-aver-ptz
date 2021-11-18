@@ -9,7 +9,6 @@ import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DEV
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DEVICE_SERIAL_NUMBER_VERSION_LABEL;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.EQUAL;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.GET_DEVICE_INFO_URL;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HTTP_PREFIX;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.MAC_LABEL;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.MAC_PREFIX;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SEMICOLON;
@@ -42,8 +41,7 @@ public class AverPTZRestCommunicator extends RestCommunicator {
 	 * This method used to get data from device
 	 */
 	public DeviceInfo getDeviceInfo() throws Exception {
-		String url = HTTP_PREFIX + this.host + GET_DEVICE_INFO_URL;
-		String response = doGet(url);
+		String response = doGet(GET_DEVICE_INFO_URL);
 		return digestResponse(response);
 	}
 
