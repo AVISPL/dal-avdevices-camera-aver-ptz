@@ -203,7 +203,8 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	}
 
 	/**
-	 * This method is used to create a connection
+	 * {@inheritdoc}
+	 * This method is used to create a connection actually create a UDP socket channel
 	 */
 	@Override
 	public void connect() {
@@ -232,7 +233,8 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	}
 
 	/**
-	 * This method is used to disconnect from the device
+	 * {@inheritdoc}
+	 * This method is used to disconnect from the device actually destroy the UDP socket channel
 	 */
 	@Override
 	public void disconnect() {
@@ -252,6 +254,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	}
 
 	/**
+	 * {@inheritdoc}
 	 * This method is used to get current connection status from the device
 	 */
 	@Override
