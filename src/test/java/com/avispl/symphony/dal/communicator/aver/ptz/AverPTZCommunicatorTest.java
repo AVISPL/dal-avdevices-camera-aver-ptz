@@ -519,7 +519,8 @@ public class AverPTZCommunicatorTest {
 		Assert.assertEquals("PTZ330", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MODEL.getName()));
 		Assert.assertEquals("5310505800460", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_SERIAL_NUMBER.getName()));
 		Assert.assertEquals("0.0.0003.72", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_FIRMWARE_VERSION.getName()));
-		Assert.assertEquals("6", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_LAST_PRESET_RECALLED.getName()));
+		int preset = Integer.parseInt(stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_LAST_PRESET_RECALLED.getName()));
+		Assert.assertTrue(preset >= 0 && preset <= 255);
 	}
 
 	/**
@@ -550,9 +551,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorAutoFocusMode() throws Exception {
 		// Change to auto-focus mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 1, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 8, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.FOCUS_MODE.getCode(), FocusMode.AUTO.getCode()));
-		averPTZCommunicator.digestResponse(response, 1, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 8, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -574,9 +575,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorManualFocusMode() throws Exception {
 		// Change to manual focus mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 2, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 9, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.FOCUS_MODE.getCode(), FocusMode.MANUAL.getCode()));
-		averPTZCommunicator.digestResponse(response, 2, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 9, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -598,14 +599,14 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorBacklightStatusOn() throws Exception {
 		// Change to AE full auto mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 3, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 10, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 3, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 10, CommandType.COMMAND, null);
 
 		// Change to backlight status on mode
-		byte[] responseBacklight = averPTZCommunicator.send(buildSendPacket(1, 4, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseBacklight = averPTZCommunicator.send(buildSendPacket(1, 11, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.BACKLIGHT.getCode(), BacklightStatus.ON.getCode()));
-		averPTZCommunicator.digestResponse(responseBacklight, 4, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseBacklight, 11, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -627,14 +628,14 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorBacklightStatusOff() throws Exception {
 		// Change to AE full auto mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 5, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 12, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 5, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 12, CommandType.COMMAND, null);
 
 		// Change to backlight status off mode
-		byte[] responseBacklight = averPTZCommunicator.send(buildSendPacket(1, 6, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseBacklight = averPTZCommunicator.send(buildSendPacket(1, 13, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.BACKLIGHT.getCode(), BacklightStatus.OFF.getCode()));
-		averPTZCommunicator.digestResponse(responseBacklight, 6, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseBacklight, 13, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -656,9 +657,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorSlowPanTiltStatusOn() throws Exception {
 		// Change to slow pan tilt status on mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 7, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 14, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.PAN_TILTER.getCode(), Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.ON.getCode()));
-		averPTZCommunicator.digestResponse(response, 7, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 14, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -680,9 +681,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorSlowPanTiltStatusOff() throws Exception {
 		// Change to slow pan tilt status off mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 8, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 15, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.PAN_TILTER.getCode(), Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.OFF.getCode()));
-		averPTZCommunicator.digestResponse(response, 8, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 15, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -704,9 +705,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorAEFullAutoMode() throws Exception {
 		// Change to AE full auto mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 9, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 16, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 9, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 16, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -746,9 +747,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorAEManualMode() throws Exception {
 		// Change to AE manual mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 10, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 17, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.MANUAL.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 10, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 17, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -795,9 +796,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorAEIrisPriorityMode() throws Exception {
 		// Change to AE iris priority mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 11, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 18, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.IRIS_PRIORITY.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 11, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 18, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -844,9 +845,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorAEShutterPriorityMode() throws Exception {
 		// Change to AE shutter priority mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 12, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 19, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.SHUTTER_PRIORITY.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 12, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 19, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -893,14 +894,14 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorSlowShutterStatusOnAEFullAutoMode() throws Exception {
 		// Change to AE full auto mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 13, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 20, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 13, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 20, CommandType.COMMAND, null);
 
 		// Change to slow shutter status on mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 14, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 21, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.ON.getCode()));
-		averPTZCommunicator.digestResponse(response, 14, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 21, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -922,14 +923,14 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorSlowShutterStatusOffAEFullAutoMode() throws Exception {
 		// Change to AE full auto mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 15, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 22, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 15, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 22, CommandType.COMMAND, null);
 
 		// Change to slow shutter status off mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 16, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 23, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.OFF.getCode()));
-		averPTZCommunicator.digestResponse(response, 16, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 23, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -951,14 +952,14 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorSlowShutterStatusOnAEIrisPriorityMode() throws Exception {
 		// Change to AE iris priority mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 17, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 24, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.IRIS_PRIORITY.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 17, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 24, CommandType.COMMAND, null);
 
 		// Change to slow shutter status on mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 18, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 25, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.ON.getCode()));
-		averPTZCommunicator.digestResponse(response, 18, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 25, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -980,14 +981,14 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorSlowShutterStatusOffAEIrisPriorityMode() throws Exception {
 		// Change to AE iris priority mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 19, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 26, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode(), AEMode.IRIS_PRIORITY.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 19, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 26, CommandType.COMMAND, null);
 
 		// Change to slow shutter status on mode
-		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 20, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] response = averPTZCommunicator.send(buildSendPacket(1, 27, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.OFF.getCode()));
-		averPTZCommunicator.digestResponse(response, 20, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(response, 27, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -1009,9 +1010,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorWBAutoMode() throws Exception {
 		// Change to WB auto mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 21, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 28, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.WB_MODE.getCode(), WBMode.AUTO.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 21, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 28, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -1033,9 +1034,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorWBIndoorMode() throws Exception {
 		// Change to WB indoor mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 22, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 29, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.WB_MODE.getCode(), WBMode.INDOOR.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 22, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 29, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -1057,9 +1058,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorWBOutdoorMode() throws Exception {
 		// Change to WB outdoor mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 23, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 30, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.WB_MODE.getCode(), WBMode.OUTDOOR.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 23, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 30, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -1081,9 +1082,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorWBOnePushMode() throws Exception {
 		// Change to WB one push mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 24, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 31, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.WB_MODE.getCode(), WBMode.ONE_PUSH_WB.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 24, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 31, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
@@ -1109,9 +1110,9 @@ public class AverPTZCommunicatorTest {
 	@Category(DevelopmentTest.class)
 	public void testAverPTZCommunicatorWBManualMode() throws Exception {
 		// Change to WB manual mode
-		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 25, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
+		byte[] responseAEMode = averPTZCommunicator.send(buildSendPacket(1, 32, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(),
 				PayloadCategory.CAMERA.getCode(), Command.WB_MODE.getCode(), WBMode.MANUAL.getCode()));
-		averPTZCommunicator.digestResponse(responseAEMode, 25, CommandType.COMMAND, null);
+		averPTZCommunicator.digestResponse(responseAEMode, 32, CommandType.COMMAND, null);
 
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
