@@ -3,29 +3,31 @@
  */
 package com.avispl.symphony.dal.communicator.aver.ptz;
 
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.BGAIN_START;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HASH;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.IRIS_LEVELS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_START_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.MINUS;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.PAN_TILT_PERIOD;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.NONE_VALUE;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.PLUS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_SHUTTER_VALUE;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_EXPOSURE_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_GAIN_LIMIT_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_IRIS_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_SHUTTER_VALUE;
-import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RGAIN_START;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_GAIN_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_GAIN_LIMIT_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_IRIS_LEVEL;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_START_SHUTTER_SPEED;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SHUTTER_VALUES;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SWITCH_STATUS_OFF;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.SWITCH_STATUS_ON;
@@ -45,8 +47,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.springframework.util.CollectionUtils;
 
@@ -109,7 +111,6 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.ZoomCon
  * @since 1.0
  */
 public class AverPTZCommunicator extends UDPCommunicator implements Controller, Monitorable {
-	private final ReentrantLock controlOperationsLock = new ReentrantLock();
 	private int cameraID = 1;
 	private int panSpeed = 1;
 	private int tiltSpeed = 1;
@@ -243,127 +244,133 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	}
 
 	/**
+	 * {@inheritdoc}
 	 * This method is recalled by Symphony to control specific property
 	 *
 	 * @param controllableProperty This is the property to be controlled
 	 */
 	@Override
-	public void controlProperty(ControllableProperty controllableProperty) {
+	public void controlProperty(ControllableProperty controllableProperty) throws IOException {
 		String property = controllableProperty.getProperty();
 		String value = String.valueOf(controllableProperty.getValue());
-		controlOperationsLock.lock();
 
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("controlProperty property " + property);
 			this.logger.debug("controlProperty value " + value);
 		}
 
-		try {
-			String[] splitProperty = property.split(String.valueOf(HASH));
-			Command command = Command.getByName(splitProperty[0]);
+		String[] splitProperty = property.split(String.valueOf(HASH));
+		Command command = Command.getByName(splitProperty[0]);
 
-			switch (command) {
-				case POWER: {
-					if (value.equals(SWITCH_STATUS_ON)) {
-						powerControl(PowerStatus.ON);
-					} else if (value.equals(SWITCH_STATUS_OFF)) {
-						powerControl(PowerStatus.OFF);
-					}
-					break;
+		switch (command) {
+			case POWER: {
+				if (value.equals(SWITCH_STATUS_ON)) {
+					performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.ON.getCode());
+				} else if (value.equals(SWITCH_STATUS_OFF)) {
+					performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.OFF.getCode());
 				}
-				case ZOOM: {
-					if (splitProperty[1].equals(ZoomControl.TELE.getName())) {
-						zoomControl(ZoomControl.TELE);
-					} else if (splitProperty[1].equals(ZoomControl.WIDE.getName())) {
-						zoomControl(ZoomControl.WIDE);
-					}
-					break;
-				}
-				case FOCUS: {
-					if (splitProperty[1].equals(Command.FOCUS_MODE.getName())) {
-						if (value.equals(SWITCH_STATUS_ON)) {
-							focusModeControl(FocusMode.MANUAL);
-						} else if (value.equals(SWITCH_STATUS_OFF)) {
-							focusModeControl(FocusMode.AUTO);
-						}
-						break;
-					}
-
-					if (splitProperty[1].equals(Command.FOCUS_ONE_PUSH.getName())) {
-						onePushFocus();
-						break;
-					}
-
-					if (splitProperty[1].equals(FocusControl.FAR.getName())) {
-						focusControl(FocusControl.FAR);
-					} else if (splitProperty[1].equals(FocusControl.NEAR.getName())) {
-						focusControl(FocusControl.NEAR);
-					}
-					break;
-				}
-				case EXPOSURE: {
-					Command exposureCommand = Command.getByName(splitProperty[1]);
-					exposureControl(value, exposureCommand);
-					break;
-				}
-				case IMAGE_PROCESS: {
-					imageProcessControl(value, splitProperty);
-					break;
-				}
-				case PAN_TILT_DRIVE: {
-					if (splitProperty[1].equals(Command.PAN_TILT_HOME.getName())) {
-						panTiltHome();
-						break;
-					} else if (splitProperty[1].equals(Command.SLOW_PAN_TILT.getName())) {
-						if (value.equals(SWITCH_STATUS_ON)) {
-							slowPanTiltControl(SlowPanTiltStatus.ON);
-						} else if (value.equals(SWITCH_STATUS_OFF)) {
-							slowPanTiltControl(SlowPanTiltStatus.OFF);
-						}
-						break;
-					}
-
-					PanTiltDrive pantTiltDrive = PanTiltDrive.getByName(splitProperty[1]);
-					panTiltDriveControl(pantTiltDrive);
-					break;
-				}
-				case PRESET: {
-					if (splitProperty[1].equals(PresetControl.SET.getName())) {
-						presetControl(PresetControl.SET, Integer.parseInt(value));
-					} else if (splitProperty[1].equals(PresetControl.RECALL.getName())) {
-						presetControl(PresetControl.RECALL, Integer.parseInt(value));
-					}
-					break;
-				}
-				default: {
-					throw new IllegalStateException("Unexpected value: " + command);
-				}
+				break;
 			}
-		} catch (CommandFailureException ex) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error: control command not found");
+			case ZOOM: {
+				if (Objects.equals(splitProperty[1], ZoomControl.TELE.getName())) {
+					performControl(PayloadCategory.CAMERA, Command.ZOOM, (byte) (ZoomControl.TELE.getCode() + zoomSpeed));
+				} else if (splitProperty[1].equals(ZoomControl.WIDE.getName())) {
+					performControl(PayloadCategory.CAMERA, Command.ZOOM, (byte) (ZoomControl.WIDE.getCode() + zoomSpeed));
+				}
+				performControl(PayloadCategory.CAMERA, Command.ZOOM, ZoomControl.STOP.getCode());
+				break;
 			}
-			throw ex;
-		} finally {
-			controlOperationsLock.unlock();
+			case FOCUS: {
+				if (Objects.equals(splitProperty[1], Command.FOCUS_MODE.getName())) {
+					if (Objects.equals(value, SWITCH_STATUS_ON)) {
+						performControl(PayloadCategory.CAMERA, Command.FOCUS_MODE, FocusMode.MANUAL.getCode());
+					} else if (Objects.equals(value, SWITCH_STATUS_OFF)) {
+						performControl(PayloadCategory.CAMERA, Command.FOCUS_MODE, FocusMode.AUTO.getCode());
+					}
+					break;
+				}
+
+				if (Objects.equals(splitProperty[1], Command.FOCUS_ONE_PUSH.getName())) {
+					performControl(PayloadCategory.CAMERA, Command.FOCUS_ONE_PUSH);
+					break;
+				}
+
+				if (Objects.equals(splitProperty[1], FocusControl.FAR.getName())) {
+					performControl(PayloadCategory.CAMERA, Command.FOCUS, (byte) (FocusControl.FAR.getCode() + focusSpeed));
+				} else if (Objects.equals(splitProperty[1], FocusControl.NEAR.getName())) {
+					performControl(PayloadCategory.CAMERA, Command.FOCUS, (byte) (FocusControl.NEAR.getCode() + focusSpeed));
+				}
+				performControl(PayloadCategory.CAMERA, Command.FOCUS, FocusControl.STOP.getCode());
+				break;
+			}
+			case EXPOSURE: {
+				Command exposureCommand = Command.getByName(splitProperty[1]);
+				exposureControl(value, exposureCommand);
+				break;
+			}
+			case IMAGE_PROCESS: {
+				imageProcessControl(value, splitProperty);
+				break;
+			}
+			case PAN_TILT_DRIVE: {
+				if (Objects.equals(splitProperty[1], Command.PAN_TILT_HOME.getName())) {
+					performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_HOME);
+					break;
+				} else if (Objects.equals(splitProperty[1], Command.SLOW_PAN_TILT.getName())) {
+					if (Objects.equals(value, SWITCH_STATUS_ON)) {
+						performControl(PayloadCategory.PAN_TILTER, Command.SLOW_PAN_TILT, SlowPanTiltStatus.ON.getCode());
+					} else if (Objects.equals(value, SWITCH_STATUS_OFF)) {
+						performControl(PayloadCategory.PAN_TILTER, Command.SLOW_PAN_TILT, SlowPanTiltStatus.OFF.getCode());
+					}
+					break;
+				}
+
+				PanTiltDrive pantTiltDrive = PanTiltDrive.getByName(splitProperty[1]);
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+				outputStream.write(pantTiltDrive.getCode());
+				performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStream.toByteArray());
+
+				outputStream = new ByteArrayOutputStream();
+				outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
+				outputStream.write(PanTiltDrive.STOP.getCode());
+				performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStream.toByteArray());
+				break;
+			}
+			case PRESET: {
+				if (Objects.equals(splitProperty[1], PresetControl.SET.getName())) {
+					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.SET.getCode(), Byte.parseByte((value)));
+				} else if (Objects.equals(splitProperty[1], PresetControl.RECALL.getName())) {
+					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.RECALL.getCode(), Byte.parseByte((value)));
+				}
+				break;
+			}
+			default: {
+				throw new IllegalStateException("Unexpected value: " + command);
+			}
 		}
 	}
 
+
 	/**
+	 * {@inheritdoc}
 	 * This method is recalled by Symphony to control a list of properties
 	 *
 	 * @param controllableProperties This is the list of properties to be controlled
 	 */
 	@Override
-	public void controlProperties(List<ControllableProperty> controllableProperties) {
+	public void controlProperties(List<ControllableProperty> controllableProperties) throws IOException {
 		if (CollectionUtils.isEmpty(controllableProperties)) {
 			throw new IllegalArgumentException("AverCommunicator: Controllable properties cannot be null or empty");
 		}
 
-		controllableProperties.forEach(this::controlProperty);
+		for (ControllableProperty controllableProperty : controllableProperties) {
+			controlProperty(controllableProperty);
+		}
 	}
 
 	/**
+	 * {@inheritdoc}
 	 * This method is recalled by Symphony to get the list of statistics to be displayed
 	 *
 	 * @return List<Statistics> This return the list of statistics.
@@ -387,34 +394,29 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		}
 
 		if (this.zoomSpeed < 0 || this.zoomSpeed > 7) {
-			throw new IllegalArgumentException("Pan speed with value" + this.zoomSpeed + " is out of range. Zoom speed must between 0 and 7");
+			throw new IllegalArgumentException("Zoom speed with value" + this.zoomSpeed + " is out of range. Zoom speed must between 0 and 7");
 		}
 
 		if (this.focusSpeed < 0 || this.focusSpeed > 7) {
-			throw new IllegalArgumentException("Tilt speed with value" + this.focusSpeed + " is out of range. Focus speed must between 0 and 7");
+			throw new IllegalArgumentException("Focus speed with value" + this.focusSpeed + " is out of range. Focus speed must between 0 and 7");
+		}
+
+		if (restCommunicator == null) {
+			try {
+				initAverRestCommunicator();
+				deviceInfo = this.restCommunicator.getDeviceInfo();
+			} catch (Exception e) {
+				if (this.logger.isErrorEnabled()) {
+					this.logger.error("error: Cannot get data from Rest communicator: " + this.host + " port: " + this.port);
+				}
+				throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data", e);
+			}
 		}
 
 		// Monitoring capabilities
-		try {
-			initAverRestCommunicator();
-			deviceInfo = this.restCommunicator.getDeviceInfo();
-			populateMonitorCapabilities(stats);
-			// Control capabilities
-			populateControlCapabilities(stats, advancedControllableProperties);
-		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error: Cannot get data from Rest communicator: " + this.host + " port: " + this.port);
-			}
-			throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data", e);
-		} finally {
-			try {
-				restCommunicator.disconnect();
-			} catch (Exception e) {
-				if (this.logger.isErrorEnabled()) {
-					this.logger.error("error: Cannot disconnect from Rest communicator: " + this.host + " port: " + this.port);
-				}
-			}
-		}
+		populateMonitorCapabilities(stats);
+		// Control capabilities
+		populateControlCapabilities(stats, advancedControllableProperties);
 
 		extStats.setStatistics(stats);
 		extStats.setControllableProperties(advancedControllableProperties);
@@ -423,7 +425,12 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	}
 
 	/**
-	 * This method is used for populate all monitoring properties
+	 * This method is used for populate all monitoring properties:
+	 * <li>Device MFG</li>
+	 * <li>Device Model</li>
+	 * <li>Device serial number</li>
+	 * <li>Device firmware version</li>
+	 * <li>Device last preset recalled</li>
 	 *
 	 * @param stats is the map that store all statistics
 	 */
@@ -436,20 +443,32 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	}
 
 	/**
-	 * This method is used for populate all controlling properties
+	 * This method is used for populate all controlling properties:
+	 * <li>Power</li>
+	 * <li>Zoom</li>
+	 * <li>Focus</li>
+	 * <li>AE</li>
+	 * <li>WB</li>
+	 * <li>Pan tilt drive</li>
+	 * <li>Preset</li>
 	 *
 	 * @param stats is the map that store all statistics
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateControlCapabilities(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
 		// Getting power status from device
-		PowerStatus powerStatus = getPowerStatus();
+		String powerStatus = getPowerStatus();
+
+		if (Objects.equals(powerStatus, NONE_VALUE)) {
+			stats.put(Command.POWER.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.POWER.getName(), "");
 
-		assert powerStatus != null;
-		if (powerStatus.compareTo(PowerStatus.OFF) == 0) {
+		if (Objects.equals(powerStatus, PowerStatus.OFF.getName())) {
 			advancedControllableProperties.add(createSwitch(Command.POWER.getName(), 0, PowerStatus.OFF.getName(), PowerStatus.ON.getName()));
-		} else if (powerStatus.compareTo(PowerStatus.ON) == 0) {
+		} else if (Objects.equals(powerStatus, PowerStatus.ON.getName())) {
 			advancedControllableProperties.add(createSwitch(Command.POWER.getName(), 1, PowerStatus.OFF.getName(), PowerStatus.ON.getName()));
 
 			// Zoom control
@@ -475,75 +494,94 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	//region Control device
 
 	/**
-	 * This method is used to control image process
+	 * This method is used to control image process:
+	 * <li>RGain</li>
+	 * <li>BGain</li>
+	 * <li>WBMode</li>
+	 * <li>WB One push trigger</li>
+	 *
+	 * @param value is the value of controllable property
+	 * @param splitProperty is the split controllable property
 	 */
 	private void imageProcessControl(String value, String[] splitProperty) {
 		// RGain
-		if (splitProperty[1].equals(Command.RGAIN.getName() + RGainControl.UP.getName())) {
-			rGainControl(RGainControl.UP);
+		if (Objects.equals(splitProperty[1], Command.RGAIN.getName() + RGainControl.UP.getName())) {
+			performControl(PayloadCategory.CAMERA, Command.RGAIN, RGainControl.UP.getCode());
 			return;
-		} else if (splitProperty[1].equals(Command.RGAIN.getName() + RGainControl.DOWN.getName())) {
-			rGainControl(RGainControl.DOWN);
+		} else if (Objects.equals(splitProperty[1], Command.RGAIN.getName() + RGainControl.DOWN.getName())) {
+			performControl(PayloadCategory.CAMERA, Command.RGAIN, RGainControl.DOWN.getCode());
 			return;
 		}
 
 		// BGain
-		if (splitProperty[1].equals(Command.BGAIN.getName() + BGainControl.UP.getName())) {
-			bGainControl(BGainControl.UP);
+		if (Objects.equals(splitProperty[1], Command.BGAIN.getName() + BGainControl.UP.getName())) {
+			performControl(PayloadCategory.CAMERA, Command.BGAIN, BGainControl.UP.getCode());
 			return;
-		} else if (splitProperty[1].equals(Command.BGAIN.getName() + BGainControl.DOWN.getName())) {
-			bGainControl(BGainControl.DOWN);
+		} else if (Objects.equals(splitProperty[1], Command.BGAIN.getName() + BGainControl.DOWN.getName())) {
+			performControl(PayloadCategory.CAMERA, Command.BGAIN, BGainControl.DOWN.getCode());
 			return;
 		}
 
 		Command imageProcessCommand = Command.getByName(splitProperty[1]);
 		switch (imageProcessCommand) {
 			case WB_MODE:
-				wbModeControl(WBMode.getByName(value));
+				performControl(PayloadCategory.CAMERA, Command.WB_MODE, WBMode.getByName(value).getCode());
 				break;
 
 			case WB_ONE_PUSH_TRIGGER: {
-				wbOnePushTrigger();
+				performControl(PayloadCategory.CAMERA, Command.WB_ONE_PUSH_TRIGGER);
 				break;
 			}
 			default: {
 				throw new IllegalStateException("Unexpected value: " + Arrays.toString(splitProperty));
 			}
 		}
-
 	}
 
 	/**
-	 * This method is used to control exposure
+	 * This method is used to control exposure:
+	 * <li>AE Mode</li>
+	 * <li>Exposure Direct</li>
+	 * <li>Gain Direct</li>
+	 * <li>Gain Limit Direct</li>
+	 * <li>Shutter Direct</li>
+	 * <li>Iris Direct</li>
+	 *
+	 * @param value is the value of controllable property
+	 * @param exposureCommand is the command get from controllable property name
 	 */
 	private void exposureControl(String value, Command exposureCommand) {
 		switch (exposureCommand) {
 			case BACKLIGHT: {
-				if (value.equals(SWITCH_STATUS_ON)) {
-					backlightControl(BacklightStatus.ON);
-				} else if (value.equals(SWITCH_STATUS_OFF)) {
-					backlightControl(BacklightStatus.OFF);
+				if (Objects.equals(value, SWITCH_STATUS_ON)) {
+					performControl(PayloadCategory.CAMERA, Command.BACKLIGHT, BacklightStatus.ON.getCode());
+				} else if (Objects.equals(value, SWITCH_STATUS_OFF)) {
+					performControl(PayloadCategory.CAMERA, Command.BACKLIGHT, BacklightStatus.OFF.getCode());
 				}
 				break;
 			}
 			case AE_MODE: {
-				aeModeControl(AEMode.getByName(value));
+				performControl(PayloadCategory.CAMERA, Command.AE_MODE, AEMode.getByName(value).getCode());
 				break;
 			}
-			case EXP_COMP_DIRECT:
+			// All of these DIRECT (Except Gain limit) case are share the same logic of SHUTTER_DIRECT
 			case GAIN_LIMIT_DIRECT:
+				float gainLimitLevel = Float.parseFloat(value);
+				performControl(PayloadCategory.CAMERA, exposureCommand, ((byte) ((int) gainLimitLevel)));
+				break;
+			case EXP_COMP_DIRECT:
 			case GAIN_DIRECT:
 			case IRIS_DIRECT:
 			case SHUTTER_DIRECT: {
 				float directValue = Float.parseFloat(value);
-				directControl(exposureCommand, (int) directValue);
+				performControl(PayloadCategory.CAMERA, exposureCommand, convertOneByteNumberToTwoBytesArray((byte) ((int) directValue)));
 				break;
 			}
 			case AUTO_SLOW_SHUTTER: {
-				if (value.equals(SWITCH_STATUS_ON)) {
-					slowShutterControl(SlowShutterStatus.ON);
-				} else if (value.equals(SWITCH_STATUS_OFF)) {
-					slowShutterControl(SlowShutterStatus.OFF);
+				if (Objects.equals(value, SWITCH_STATUS_ON)) {
+					performControl(PayloadCategory.CAMERA, Command.AUTO_SLOW_SHUTTER, SlowShutterStatus.ON.getCode());
+				} else if (Objects.equals(value, SWITCH_STATUS_OFF)) {
+					performControl(PayloadCategory.CAMERA, Command.AUTO_SLOW_SHUTTER, SlowShutterStatus.OFF.getCode());
 				}
 				break;
 			}
@@ -554,369 +592,26 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	}
 
 	/**
-	 * This method is used to control power
-	 */
-	public void powerControl(PowerStatus powerStatus) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.POWER.getCode(), powerStatus.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during power " + powerStatus.getName() + " send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control zoom
-	 */
-	public void zoomControl(ZoomControl zoomControl) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.ZOOM.getCode(), (byte) (zoomControl.getCode() + zoomSpeed)));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during zoom " + zoomControl.getName() + " send", e);
-			}
-		}
-
-		zoomStop();
-	}
-
-	/**
-	 * This method is used to control zoom stop
-	 */
-	public void zoomStop() {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.ZOOM.getCode(), ZoomControl.STOP.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during zoom stop send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control focus
-	 */
-	public void focusControl(FocusControl focusControl) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.FOCUS.getCode(), (byte) (focusControl.getCode() + focusSpeed)));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during focus " + focusControl.getName() + " send", e);
-			}
-		}
-
-		focusStop();
-	}
-
-	/**
-	 * This method is used to control focus stop
-	 */
-	public void focusStop() {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.FOCUS.getCode(), FocusControl.STOP.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during focus stop send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control focus mode
-	 */
-	public void focusModeControl(FocusMode mode) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.FOCUS_MODE.getCode(), mode.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during " + mode.getName() + " mode send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control one push focus
-	 */
-	public void onePushFocus() {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.FOCUS_ONE_PUSH.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during one push focus send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control wb mode
-	 */
-	public void wbModeControl(WBMode wbMode) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.WB_MODE.getCode(), wbMode.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during wb " + wbMode + " mode send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control wb one push trigger
-	 */
-	public void wbOnePushTrigger() {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.WB_ONE_PUSH_TRIGGER.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during wb one push trigger send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control RGain
-	 */
-	public void rGainControl(RGainControl rGainControl) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.RGAIN.getCode(), rGainControl.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during RGain " + rGainControl.getName() + " send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control BGain
-	 */
-	public void bGainControl(BGainControl bGainControl) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.BGAIN.getCode(), bGainControl.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during BGain " + bGainControl.getName() + " send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control AE mode
-	 */
-	public void aeModeControl(AEMode aeMode) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.AE_MODE.getCode(), aeMode.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during AE " + aeMode.getName() + " mode send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control slow shutter
-	 */
-	public void slowShutterControl(SlowShutterStatus status) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.AUTO_SLOW_SHUTTER.getCode(), status.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during slow shutter " + status.getName() + " send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control shutter direct
+	 * This method used to perform control of all properties by send, receive command from device
 	 *
-	 * @param value This is the value to direct
+	 * @param payloadCategory is the category of payload of the command to be sent
+	 * @param command is the command to be sent
+	 * @param param is the param of command to be sent
 	 */
-	public void directControl(Command command, int value) {
+	public void performControl(PayloadCategory payloadCategory, Command command, byte... param) {
+		byte[] request = new byte[0];
+		byte[] response = new byte[0];
+
 		try {
 			int currentSeqNum = ++sequenceNumber;
-			byte[] param;
-
-			if (command.equals(Command.GAIN_LIMIT_DIRECT)) {
-				param = new byte[] { (byte) value };
-			} else {
-				param = convertOneByteNumberToTwoBytesArray((byte) value);
-			}
-
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					command.getCode(), param));
+			request = buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), payloadCategory.getCode(),
+					command.getCode(), param);
+			response = send(request);
 
 			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
 		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during " + command.getName() + " direct send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to control backlight
-	 */
-	public void backlightControl(BacklightStatus status) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.BACKLIGHT.getCode(), status.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during backlight " + status.getName() + " send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to set preset
-	 *
-	 * @param preset This is preset value to set
-	 */
-	public void presetControl(PresetControl control, int preset) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
-					Command.PRESET.getCode(), control.getCode(), (byte) preset));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during " + control.getName() + " preset send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to slow pan tilt on
-	 */
-	public void slowPanTiltControl(SlowPanTiltStatus status) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
-					Command.SLOW_PAN_TILT.getCode(), status.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during slow pan tilt " + status.getName() + " send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to drive pan tilt up
-	 */
-	public void panTiltDriveControl(PanTiltDrive panTiltDrive) {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
-			outputStream.write(panTiltDrive.getCode());
-
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
-					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during pan tilt " + panTiltDrive.getName() + " send", e);
-			}
-		}
-
-		panTiltStop();
-	}
-
-	/**
-	 * This method is used to drive pan tilt stop
-	 */
-	public void panTiltStop() {
-		try {
-			Thread.sleep(PAN_TILT_PERIOD);
-			int currentSeqNum = ++sequenceNumber;
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
-			outputStream.write(PanTiltDrive.STOP.getCode());
-
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
-					Command.PAN_TILT_DRIVE.getCode(), outputStream.toByteArray()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during pan tilt stop send", e);
-			}
-		}
-	}
-
-	/**
-	 * This method is used to drive pan tilt home
-	 */
-	public void panTiltHome() {
-		try {
-			int currentSeqNum = ++sequenceNumber;
-			byte[] response = send(buildSendPacket(cameraID, currentSeqNum, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
-					Command.PAN_TILT_HOME.getCode()));
-
-			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
-		} catch (Exception e) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("error during pan tilt home send", e);
-			}
+			this.logger.error("error during command " + command.getName() + " send", e);
+			throw new CommandFailureException(this.getHost(), getHexByteString(request), getHexByteString(response));
 		}
 	}
 	//endregion
@@ -925,55 +620,86 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	//--------------------------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * This method is used for populate all zoom control properties
+	 * This method is used for populate all zoom control properties (Tele/Wide)
 	 *
 	 * @param stats is the map that store all statistics
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateZoomControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		// Zoom
-		stats.put(Command.ZOOM.getName() + HASH + ZoomControl.TELE.getName(), "");
-		stats.put(Command.ZOOM.getName() + HASH + ZoomControl.WIDE.getName(), "");
+		// Populate zoom tele button
+		populateButtonControl(stats, advancedControllableProperties, Command.ZOOM.getName() + HASH + ZoomControl.TELE.getName(), PLUS);
 
-		advancedControllableProperties.add(createButton(Command.ZOOM.getName() + HASH + ZoomControl.TELE.getName(), PLUS));
-		advancedControllableProperties.add(createButton(Command.ZOOM.getName() + HASH + ZoomControl.WIDE.getName(), MINUS));
+		// Populate zoom wide button
+		populateButtonControl(stats, advancedControllableProperties, Command.ZOOM.getName() + HASH + ZoomControl.WIDE.getName(), MINUS);
 	}
 
 	/**
-	 * This method is used for populate all focus control properties
+	 * This method is used for populate all focus control properties (Focus near/far, focus mode, focus on push)
 	 *
 	 * @param stats is the map that store all statistics
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateFocusControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		// Getting focus mode
-		FocusMode focusMode = getFocusStatus();
+		// Populate focus mode switch
+		String focusMode = this.getFocusStatus();
 
-		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName(), "");
+		// Populate focus one push button
+		populateButtonControl(stats, advancedControllableProperties, Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName(), Command.FOCUS_ONE_PUSH.getName());
+
+		if (Objects.equals(focusMode, NONE_VALUE)) {
+			stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), "");
-		advancedControllableProperties.add(createButton(Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName(), Command.FOCUS_ONE_PUSH.getName()));
 
-		assert focusMode != null;
-
-		if (focusMode.compareTo(FocusMode.AUTO) == 0) {
+		if (Objects.equals(focusMode, FocusMode.AUTO.getName())) {
 			advancedControllableProperties.add(createSwitch(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), 0, FocusMode.AUTO.getName(), FocusMode.MANUAL.getName()));
-		} else if (focusMode.compareTo(FocusMode.MANUAL) == 0) {
+		} else if (Objects.equals(focusMode, FocusMode.MANUAL.getName())) {
 			advancedControllableProperties.add(createSwitch(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), 1, FocusMode.AUTO.getName(), FocusMode.MANUAL.getName()));
-			stats.put(Command.FOCUS.getName() + HASH + FocusControl.FAR.getName(), "");
-			stats.put(Command.FOCUS.getName() + HASH + FocusControl.NEAR.getName(), "");
 
-			advancedControllableProperties.add(createButton(Command.FOCUS.getName() + HASH + FocusControl.FAR.getName(), MINUS));
-			advancedControllableProperties.add(createButton(Command.FOCUS.getName() + HASH + FocusControl.NEAR.getName(), PLUS));
+			// Populate focus far button
+			populateButtonControl(stats, advancedControllableProperties, Command.FOCUS.getName() + HASH + FocusControl.FAR.getName(), MINUS);
+
+			// Populate focus near button
+			populateButtonControl(stats, advancedControllableProperties, Command.FOCUS.getName() + HASH + FocusControl.NEAR.getName(), PLUS);
 		}
 	}
 
 	/**
-	 * This method is used for populate all AE control properties
+	 * This method is used for populate all AE control properties:
+	 * AE Full Auto mode:
+	 * <li>Backlight control</li>
+	 * <li>Exposure control</li>
+	 * <li>Gain limit control</li>
+	 * <li>Auto slow shutter control</li>
+	 *
+	 * AE Shutter Priority mode:
+	 * <li>Exposure control</li>
+	 * <li>Gain limit control</li>
+	 * <li>Shutter control</li>
+	 *
+	 * AE Iris Priority mode:
+	 * <li>Exposure control</li>
+	 * <li>Gain limit control</li>
+	 * <li>Auto slow shutter control</li>
+	 * <li>Iris control</li>
+	 *
+	 * Manual:
+	 * <li>Shutter control</li>
+	 * <li>Gain control</li>
+	 * <li>Iris control</li>
 	 *
 	 * @param stats is the map that store all statistics
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateAEControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
+		AEMode aeMode = this.getAEMode();
+		if (aeMode == null) {
+			stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), NONE_VALUE);
+			return;
+		}
+
 		stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), "");
 
 		List<String> aeModeList = new ArrayList<>();
@@ -982,174 +708,114 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		aeModeList.add(AEMode.SHUTTER_PRIORITY.getName());
 		aeModeList.add(AEMode.MANUAL.getName());
 
-		AEMode aeMode = this.getAEMode();
-		assert aeMode != null;
 		advancedControllableProperties.add(createDropdown(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), aeModeList, aeMode.getName()));
 
 		// Getting auto slow shutter status
-		SlowShutterStatus autoSlowShutterStatus = getAutoSlowShutterStatus();
+		String autoSlowShutterStatus = getAutoSlowShutterStatus();
 
 		switch (aeMode) {
 			case FULL_AUTO: {
-				// Populate backlight control
-				populateBacklightControl(stats, advancedControllableProperties);
+				// Populate backlight switch control
+				String backlightStatus = this.getBacklightStatus();
+				populateSwitchControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), backlightStatus, BacklightStatus.OFF.getName(),
+						BacklightStatus.ON.getName());
 
 				// Populate exposure control
-				populateExposureControl(stats, advancedControllableProperties);
+				// Exposure value: -4 -> 4, Value on slider: 1 -> 9 => Value on slider = Exposure value + 5
+				String exposureValue = this.getExposureValue();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), exposureValue, LABEL_START_EXPOSURE_VALUE, LABEL_END_EXPOSURE_VALUE, RANGE_START_EXPOSURE_VALUE,
+						RANGE_END_EXPOSURE_VALUE, Float.parseFloat(exposureValue) + 5);
 
 				// Populate gain limit control
-				populateGainLimitControl(stats, advancedControllableProperties);
+				// Gain limit level: 24, 27, 30,..., 48 -> Value in slider: (gain limit level - 24) /3
+				String gainLimitLevel = this.getGainLimitLevel();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), gainLimitLevel, LABEL_START_GAIN_LIMIT_LEVEL, LABEL_END_GAIN_LIMIT_LEVEL, RANGE_START_GAIN_LIMIT_LEVEL,
+						RANGE_END_GAIN_LIMIT_LEVEL, (Float.parseFloat(gainLimitLevel) - 24) / 3);
 
 				// Populate slow shutter control
-				assert autoSlowShutterStatus != null;
-				populateAutoSlowShutterControl(stats, advancedControllableProperties, autoSlowShutterStatus);
+				populateSwitchControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), autoSlowShutterStatus, SlowShutterStatus.OFF.getName(),
+						SlowShutterStatus.ON.getName());
 				break;
 			}
 			case SHUTTER_PRIORITY: {
 				// Populate exposure control
-				populateExposureControl(stats, advancedControllableProperties);
+				// Exposure value: -4 -> 4, Value on slider: 1 -> 9 => Value on slider = Exposure value + 5
+				String exposureValue = this.getExposureValue();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), exposureValue, LABEL_START_EXPOSURE_VALUE, LABEL_END_EXPOSURE_VALUE, RANGE_START_EXPOSURE_VALUE,
+						RANGE_END_EXPOSURE_VALUE, Float.parseFloat(exposureValue) + 5);
 
 				// Populate gain limit control
-				populateGainLimitControl(stats, advancedControllableProperties);
+				// Gain limit level: 24, 27, 30,..., 48 -> Value in slider: (gain limit level - 24) /3
+				String gainLimitLevel = this.getGainLimitLevel();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), gainLimitLevel, LABEL_START_GAIN_LIMIT_LEVEL, LABEL_END_GAIN_LIMIT_LEVEL, RANGE_START_GAIN_LIMIT_LEVEL,
+						RANGE_END_GAIN_LIMIT_LEVEL, (Float.parseFloat(gainLimitLevel) - 24) / 3);
 
 				// Populate shutter control
-				populateShutterControl(stats, advancedControllableProperties);
+				Entry<Integer, String> shutterSpeed = this.getShutterSpeed();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), shutterSpeed.getValue(), LABEL_START_SHUTTER_SPEED, LABEL_END_SHUTTER_SPEED, RANGE_START_SHUTTER_SPEED,
+						RANGE_END_SHUTTER_SPEED, shutterSpeed.getKey().floatValue());
 				break;
 			}
 			case IRIS_PRIORITY: {
 				// Populate exposure control
-				populateExposureControl(stats, advancedControllableProperties);
+				// Exposure value: -4 -> 4, Value on slider: 1 -> 9 => Value on slider = Exposure value + 5
+				String exposureValue = this.getExposureValue();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), exposureValue, LABEL_START_EXPOSURE_VALUE, LABEL_END_EXPOSURE_VALUE, RANGE_START_EXPOSURE_VALUE,
+						RANGE_END_EXPOSURE_VALUE, Float.parseFloat(exposureValue) + 5);
 
 				// Populate gain limit control
-				populateGainLimitControl(stats, advancedControllableProperties);
+				// Gain limit level: 24, 27, 30,..., 48 -> Value in slider: (gain limit level - 24) /3
+				String gainLimitLevel = this.getGainLimitLevel();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), gainLimitLevel, LABEL_START_GAIN_LIMIT_LEVEL, LABEL_END_GAIN_LIMIT_LEVEL, RANGE_START_GAIN_LIMIT_LEVEL,
+						RANGE_END_GAIN_LIMIT_LEVEL, (Float.parseFloat(gainLimitLevel) - 24) / 3);
 
 				// Populate slow shutter control
-				assert autoSlowShutterStatus != null;
-				populateAutoSlowShutterControl(stats, advancedControllableProperties, autoSlowShutterStatus);
+				populateSwitchControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), autoSlowShutterStatus, SlowShutterStatus.OFF.getName(),
+						SlowShutterStatus.ON.getName());
 
 				// Populate iris control
-				populateIrisControl(stats, advancedControllableProperties);
+				Entry<Integer, String> irisLevel = this.getIrisLevel();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), irisLevel.getValue(), LABEL_START_IRIS_LEVEL, LABEL_END_IRIS_LEVEL, RANGE_START_IRIS_LEVEL,
+						RANGE_END_IRIS_LEVEL, irisLevel.getKey().floatValue());
 				break;
 			}
 			case MANUAL:
 				// Populate shutter control
-				populateShutterControl(stats, advancedControllableProperties);
+				Entry<Integer, String> shutterSpeed = this.getShutterSpeed();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), shutterSpeed.getValue(), LABEL_START_SHUTTER_SPEED, LABEL_END_SHUTTER_SPEED, RANGE_START_SHUTTER_SPEED,
+						RANGE_END_SHUTTER_SPEED, shutterSpeed.getKey().floatValue());
 
 				// Populate gain control
-				populateGainControl(stats, advancedControllableProperties);
+				String gainLevel = this.getGainLevel();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName(), gainLevel, LABEL_START_GAIN_LEVEL, LABEL_END_GAIN_LEVEL, RANGE_START_GAIN_LEVEL,
+						RANGE_END_GAIN_LEVEL, Float.parseFloat(gainLevel));
 
 				// Populate iris control
-				populateIrisControl(stats, advancedControllableProperties);
+				Entry<Integer, String> irisLevel = this.getIrisLevel();
+				populateSliderControl(stats, advancedControllableProperties, Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(),
+						Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), irisLevel.getValue(), LABEL_START_IRIS_LEVEL, LABEL_END_IRIS_LEVEL, RANGE_START_IRIS_LEVEL,
+						RANGE_END_IRIS_LEVEL, irisLevel.getKey().floatValue());
+				break;
+			default:
+				throw new IllegalStateException("Unexpected AEMode: " + aeMode);
 		}
 	}
 
 	/**
-	 * This method is used for populate all backlight control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 */
-	private void populateBacklightControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		// Getting backlight status
-		BacklightStatus backlightStatus = getBacklightStatus();
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), "");
-		assert backlightStatus != null;
-
-		if (backlightStatus.compareTo(BacklightStatus.OFF) == 0) {
-			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), 0, BacklightStatus.OFF.getName(), BacklightStatus.ON.getName()));
-		} else if (backlightStatus.compareTo(BacklightStatus.ON) == 0) {
-			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName(), 1, BacklightStatus.OFF.getName(), BacklightStatus.ON.getName()));
-		}
-	}
-
-	/**
-	 * This method is used for populate all Exposure control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 */
-	private void populateExposureControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_CURRENT.getName(), this.getExposureValue());
-		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.EXP_COMP_DIRECT.getName(), LABEL_START_EXPOSURE_VALUE, LABEL_END_EXPOSURE_VALUE,
-						RANGE_START_EXPOSURE_VALUE, RANGE_END_EXPOSURE_VALUE, Float.parseFloat(this.getExposureValue()) + 5));
-	}
-
-	/**
-	 * This method is used for populate all gain limit control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 */
-	private void populateGainLimitControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_CURRENT.getName(), this.getGainLimitLevel());
-		// Gain limit level: 24, 27, 30,..., 48 -> Value in slider: (gain limit level - 24) /3
-		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_LIMIT_DIRECT.getName(), LABEL_START_GAIN_LIMIT_VALUE, LABEL_END_GAIN_LIMIT_VALUE,
-						RANGE_START_GAIN_LIMIT_VALUE, RANGE_END_GAIN_LIMIT_VALUE, (Float.parseFloat(this.getGainLimitLevel()) - 24) / 3));
-	}
-
-	/**
-	 * This method is used for auto slow shutter control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 * @param autoSlowShutterStatus is the status of auto slow shutter
-	 */
-	private void populateAutoSlowShutterControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, SlowShutterStatus autoSlowShutterStatus) {
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), "");
-		if (autoSlowShutterStatus.compareTo(SlowShutterStatus.ON) == 0) {
-			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 1, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
-		} else if (autoSlowShutterStatus.compareTo(SlowShutterStatus.OFF) == 0) {
-			advancedControllableProperties.add(createSwitch(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName(), 0, SlowShutterStatus.OFF.getName(), SlowShutterStatus.ON.getName()));
-		}
-	}
-
-	/**
-	 * This method is used for populate all shutter control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 */
-	private void populateShutterControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_CURRENT.getName(), this.getShutterSpeed().getValue());
-		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.SHUTTER_DIRECT.getName(), LABEL_START_SHUTTER_VALUE, LABEL_END_SHUTTER_VALUE, RANGE_START_SHUTTER_VALUE,
-						RANGE_END_SHUTTER_VALUE, this.getShutterSpeed().getKey().floatValue()));
-	}
-
-	/**
-	 * This method is used for populate all iris control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 */
-	private void populateIrisControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.IRIS_CURRENT.getName(), this.getIrisLevel().getValue());
-		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.IRIS_DIRECT.getName(), LABEL_START_IRIS_VALUE, LABEL_END_IRIS_VALUE, RANGE_START_IRIS_VALUE,
-						RANGE_END_IRIS_VALUE, this.getIrisLevel().getKey().floatValue()));
-	}
-
-	/**
-	 * This method is used for populate all gain control properties
-	 *
-	 * @param stats is the map that store all statistics
-	 * @param advancedControllableProperties is the list that store all controllable properties
-	 */
-	private void populateGainControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "");
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.GAIN_CURRENT.getName(), this.getGainLevel());
-		advancedControllableProperties.add(
-				createSlider(Command.EXPOSURE.getName() + HASH + Command.GAIN_DIRECT.getName(), "0", "48", (float) 0, 48F, Float.parseFloat(this.getGainLevel())));
-	}
-
-	/**
-	 * This method is used for populate all WB control properties
+	 * This method is used for populate all WB control properties:
+	 * WB Mode (Auto, Indoor, Outdoor, One push wb, manual)
+	 * Manual (RGain, BGain)
+	 * One push wb (One push trigger)
 	 *
 	 * @param stats is the map that store all statistics
 	 * @param advancedControllableProperties is the list that store all controllable properties
@@ -1164,94 +830,166 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		wbModeList.add(WBMode.ONE_PUSH_WB.getName());
 		wbModeList.add(WBMode.MANUAL.getName());
 
-		WBMode wbMode = this.getWBMode();
-		advancedControllableProperties.add(createDropdown(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), wbModeList, wbMode.getName()));
+		String wbMode = this.getWBMode();
+		advancedControllableProperties.add(createDropdown(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), wbModeList, wbMode));
 
-		if (WBMode.MANUAL.equals(wbMode)) {
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName(), "");
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.DOWN.getName(), "");
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName(), this.getRGain());
+		if (Objects.equals(WBMode.MANUAL.getName(), wbMode)) {
+			String rGainValue = this.getRGain();
+			String bGainValue = this.getBGain();
 
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.UP.getName(), "");
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.DOWN.getName(), "");
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN_INQ.getName(), this.getBGain());
+			if (Objects.equals(rGainValue, NONE_VALUE)) {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName(), NONE_VALUE);
+			} else {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName(), rGainValue);
+			}
 
-			advancedControllableProperties.add(
-					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName(), RGainControl.UP.getName()));
-			advancedControllableProperties.add(
-					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.DOWN.getName(), RGainControl.DOWN.getName()));
+			if (Objects.equals(bGainValue, NONE_VALUE)) {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN_INQ.getName(), NONE_VALUE);
+			} else {
+				stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN_INQ.getName(), bGainValue);
+			}
 
-			advancedControllableProperties.add(
-					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.UP.getName(), BGainControl.UP.getName()));
-			advancedControllableProperties.add(
-					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.DOWN.getName(), BGainControl.DOWN.getName()));
+			// Populate RGain up button
+			populateButtonControl(stats, advancedControllableProperties, Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName(), RGainControl.UP.getName());
+			// Populate RGain down button
+			populateButtonControl(stats, advancedControllableProperties, Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.DOWN.getName(), RGainControl.DOWN.getName());
+			// Populate BGain up button
+			populateButtonControl(stats, advancedControllableProperties, Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.UP.getName(), BGainControl.UP.getName());
+			// Populate BGain down button
+			populateButtonControl(stats, advancedControllableProperties, Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.DOWN.getName(), BGainControl.DOWN.getName());
 
-		} else if (WBMode.ONE_PUSH_WB.equals(wbMode)) {
-			stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName(), "");
-			advancedControllableProperties.add(
-					createButton(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName(), Command.WB_ONE_PUSH_TRIGGER.getName()));
+		} else if (Objects.equals(WBMode.ONE_PUSH_WB.getName(), wbMode)) {
+			// Populate one push WB button
+			populateButtonControl(stats, advancedControllableProperties, Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName(), Command.WB_ONE_PUSH_TRIGGER.getName());
 		}
 	}
 
 	/**
-	 * This method is used for populate all pan tilt control properties
+	 * This method is used for populate all pan tilt control properties:
+	 * <li>Pan tilt drive (up/down/left/right/up left/up right/down left/down right</li>
+	 * <li>Pan tilt home</li>
+	 * <li>Slow pan tilt mode</li>
 	 *
 	 * @param stats is the map that store all statistics
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populatePanTiltControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		// Pan tilt drive
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP.getName(), PanTiltDrive.UP.getName()));
+		// Populate pan tilt drive up button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP.getName(), PanTiltDrive.UP.getName());
+		// Populate pan tilt drive down button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN.getName(), PanTiltDrive.DOWN.getName());
+		// Populate pan tilt drive left button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.LEFT.getName(), PanTiltDrive.LEFT.getName());
+		// Populate pan tilt drive right button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.RIGHT.getName(), PanTiltDrive.RIGHT.getName());
+		// Populate pan tilt drive up left button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_LEFT.getName(), PanTiltDrive.UP_LEFT.getName());
+		// Populate pan tilt drive up right button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_RIGHT.getName(), PanTiltDrive.UP_RIGHT.getName());
+		// Populate pan tilt drive down left button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_LEFT.getName(), PanTiltDrive.DOWN_LEFT.getName());
+		// Populate pan tilt drive down right button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_RIGHT.getName(), PanTiltDrive.DOWN_RIGHT.getName());
+		// Populate pan tilt drive home button
+		populateButtonControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + Command.PAN_TILT_HOME.getName(), Command.PAN_TILT_HOME.getName());
 
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN.getName(), PanTiltDrive.DOWN.getName()));
-
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.LEFT.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.LEFT.getName(), PanTiltDrive.LEFT.getName()));
-
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.RIGHT.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.RIGHT.getName(), PanTiltDrive.RIGHT.getName()));
-
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_LEFT.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_LEFT.getName(), PanTiltDrive.UP_LEFT.getName()));
-
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_RIGHT.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_RIGHT.getName(), PanTiltDrive.UP_RIGHT.getName()));
-
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_LEFT.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_LEFT.getName(), PanTiltDrive.DOWN_LEFT.getName()));
-
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_RIGHT.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_RIGHT.getName(), PanTiltDrive.DOWN_RIGHT.getName()));
-
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + Command.PAN_TILT_HOME.getName(), "");
-		advancedControllableProperties.add(createButton(Command.PAN_TILT_DRIVE.getName() + HASH + Command.PAN_TILT_HOME.getName(), Command.PAN_TILT_HOME.getName()));
-
-		// Getting slow pan tilt status
-		SlowPanTiltStatus slowPanTiltStatus = getSlowPanTiltStatus();
-		stats.put(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), "");
-
-		assert slowPanTiltStatus != null;
-		if (slowPanTiltStatus.compareTo(SlowPanTiltStatus.OFF) == 0) {
-			advancedControllableProperties.add(createSwitch(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), 0, SlowPanTiltStatus.OFF.getName(), SlowPanTiltStatus.ON.getName()));
-		} else if (slowPanTiltStatus.compareTo(SlowPanTiltStatus.ON) == 0) {
-			advancedControllableProperties.add(createSwitch(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), 1, SlowPanTiltStatus.OFF.getName(), SlowPanTiltStatus.ON.getName()));
-		}
+		// Populate slow pan tilt switch
+		String slowPanTiltStatus = getSlowPanTiltStatus();
+		populateSwitchControl(stats, advancedControllableProperties, Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName(), slowPanTiltStatus, SlowPanTiltStatus.OFF.getName(),
+				SlowPanTiltStatus.ON.getName());
 	}
 
 	/**
-	 * This method is used for populate all preset control properties
+	 * This method is used for populate all preset control properties (preset set and recall)
 	 *
 	 * @param stats is the map that store all statistics
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populatePresetControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		stats.put(Command.PRESET.getName() + HASH + PresetControl.SET.getName(), "");
-		advancedControllableProperties.add(createNumeric(Command.PRESET.getName() + HASH + PresetControl.SET.getName()));
+		// Populate set preset button
+		populateNumericControl(stats, advancedControllableProperties, Command.PRESET.getName() + HASH + PresetControl.SET.getName());
 
-		stats.put(Command.PRESET.getName() + HASH + PresetControl.RECALL.getName(), "");
-		advancedControllableProperties.add(createNumeric(Command.PRESET.getName() + HASH + PresetControl.RECALL.getName()));
+		// Populate recall preset button
+		populateNumericControl(stats, advancedControllableProperties, Command.PRESET.getName() + HASH + PresetControl.RECALL.getName());
+	}
+
+	/**
+	 * This method is used for populate slider control
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 * @param propertyName is the property name of slider
+	 * @param currentPropertyName is the label for current value of property
+	 * @param propertyValue is the current value of property
+	 * @param labelStart is the label start of slider
+	 * @param labelEnd is the label end of slider
+	 * @param rangeStart is the range start of slider
+	 * @param rangeEnd is the range end of slider
+	 * @param initialValue is the initial value of slider
+	 */
+	private void populateSliderControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String propertyName,
+			String currentPropertyName, String propertyValue, String labelStart, String labelEnd, float rangeStart, float rangeEnd, float initialValue) {
+
+		if (Objects.equals(propertyValue, NONE_VALUE)) {
+			stats.put(propertyName, NONE_VALUE);
+			stats.put(currentPropertyName, NONE_VALUE);
+			return;
+		}
+
+		stats.put(propertyName, "");
+		stats.put(currentPropertyName, propertyValue);
+		advancedControllableProperties.add(createSlider(propertyName, labelStart, labelEnd, rangeStart, rangeEnd, initialValue));
+	}
+
+	/**
+	 * This method is used for populate switch control
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 * @param propertyName is the property name of switch control
+	 * @param currentStatus is the current status of switch control
+	 * @param labelOff is the label off of switch control
+	 * @param labelOn is the label on of switch control
+	 */
+	private void populateSwitchControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String propertyName, String currentStatus,
+			String labelOff, String labelOn) {
+		if (Objects.equals(currentStatus, NONE_VALUE)) {
+			stats.put(propertyName, NONE_VALUE);
+			return;
+		}
+
+		stats.put(propertyName, "");
+
+		if (Objects.equals(currentStatus, labelOn)) {
+			advancedControllableProperties.add(createSwitch(propertyName, 1, labelOff, labelOn));
+		} else if (Objects.equals(currentStatus, labelOff)) {
+			advancedControllableProperties.add(createSwitch(propertyName, 0, labelOff, labelOn));
+		}
+	}
+
+	/**
+	 * This method is used for populate numeric control
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 * @param propertyName is the property name of numeric control
+	 */
+	private void populateNumericControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String propertyName) {
+		stats.put(propertyName, "");
+		advancedControllableProperties.add(createNumeric(propertyName));
+	}
+
+	/**
+	 * This method is used for populate button control
+	 *
+	 * @param stats is the map that store all statistics
+	 * @param advancedControllableProperties is the list that store all controllable properties
+	 * @param propertyName is the property name of button control
+	 * @param buttonLabel is the label of button control
+	 */
+	private void populateButtonControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties, String propertyName, String buttonLabel) {
+		stats.put(propertyName, "");
+		advancedControllableProperties.add(createButton(propertyName, buttonLabel));
 	}
 	//--------------------------------------------------------------------------------------------------------------------------------
 	//endregion
@@ -1272,11 +1010,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.PRESET));
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get last preset recalled send", e);
-			}
+			this.logger.error("error during get last preset recalled send", e);
 		}
-		return null;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1284,7 +1020,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the power status
 	 */
-	private PowerStatus getPowerStatus() {
+	private String getPowerStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
@@ -1293,16 +1029,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			PowerStatus status = (PowerStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.POWER);
 
 			if (status == null) {
-				return PowerStatus.OFF;
+				return PowerStatus.OFF.getName();
 			} else {
-				return status;
+				return status.getName();
 			}
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get power send", e);
-			}
+			this.logger.error("error during get power send", e);
 		}
-		return null;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1310,7 +1044,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the focus status
 	 */
-	private FocusMode getFocusStatus() {
+	private String getFocusStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
@@ -1319,16 +1053,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			FocusMode mode = (FocusMode) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.FOCUS_MODE);
 
 			if (mode == null) {
-				return FocusMode.AUTO;
+				return FocusMode.AUTO.getName();
 			} else {
-				return mode;
+				return mode.getName();
 			}
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get focus mode", e);
-			}
+			this.logger.error("error during get focus mode", e);
 		}
-		return null;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1336,7 +1068,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the backlight status
 	 */
-	private BacklightStatus getBacklightStatus() {
+	private String getBacklightStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
@@ -1345,16 +1077,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			BacklightStatus status = (BacklightStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.BACKLIGHT);
 
 			if (status == null) {
-				return BacklightStatus.OFF;
+				return BacklightStatus.OFF.getName();
 			} else {
-				return status;
+				return status.getName();
 			}
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get backlight status", e);
-			}
+			this.logger.error("error during get backlight status", e);
 		}
-		return null;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1376,9 +1106,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				return mode;
 			}
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get AE mode", e);
-			}
+			this.logger.error("error during get AE mode", e);
 		}
 		return null;
 	}
@@ -1396,11 +1124,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			// Exposure value: -4 -> 4, Value get from device: 1 -> 9 => Exposure value = value from device - 5
 			return String.valueOf((int) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.EXP_COMP_DIRECT) - 5);
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get exposure value", e);
-			}
+			this.logger.error("error during get exposure value", e);
 		}
-		return LABEL_START_EXPOSURE_VALUE;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1419,11 +1145,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 			return new SimpleEntry<>(index, SHUTTER_VALUES.get(index));
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get shutter speed", e);
-			}
+			this.logger.error("error during get shutter speed", e);
 		}
-		return new SimpleEntry<>(0, SHUTTER_VALUES.get(0));
+		return new SimpleEntry<>(0, NONE_VALUE);
 	}
 
 	/**
@@ -1441,11 +1165,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			int index = (int) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.IRIS_DIRECT);
 			return new SimpleEntry<>(index, IRIS_LEVELS.get(index));
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get iris level", e);
-			}
+			this.logger.error("error during get iris level", e);
 		}
-		return new SimpleEntry<>(0, IRIS_LEVELS.get(0));
+		return new SimpleEntry<>(0, NONE_VALUE);
 	}
 
 	/**
@@ -1461,11 +1183,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.GAIN_DIRECT));
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get gain level", e);
-			}
+			this.logger.error("error during get gain level", e);
 		}
-		return LABEL_START_IRIS_VALUE;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1481,11 +1201,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			// Gain limit level: 24, 27, ... , 48. Value get from device: 0,1, ... , 8 => gain limit level = (value from device + 24 ) * 3
 			return String.valueOf(24 + (int) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.GAIN_LIMIT_DIRECT) * 3);
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get gain limit level", e);
-			}
+			this.logger.error("error during get gain limit level", e);
 		}
-		return LABEL_START_GAIN_LIMIT_VALUE;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1493,7 +1211,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the WB mode
 	 */
-	private WBMode getWBMode() {
+	private String getWBMode() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
@@ -1502,15 +1220,13 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			WBMode mode = (WBMode) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.WB_MODE);
 
 			if (mode == null) {
-				return WBMode.MANUAL;
+				return WBMode.MANUAL.getName();
 			} else {
-				return mode;
+				return mode.getName();
 			}
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get WB mode", e);
-			}
-			return WBMode.MANUAL;
+			this.logger.error("error during get WB mode", e);
+			return WBMode.MANUAL.getName();
 		}
 	}
 
@@ -1528,11 +1244,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.RGAIN_INQ));
 
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get RGain value", e);
-			}
+			this.logger.error("error during get RGain value", e);
 		}
-		return RGAIN_START;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1549,11 +1263,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			return String.valueOf(digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.BGAIN_INQ));
 
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get BGain value", e);
-			}
+			this.logger.error("error during get BGain value", e);
 		}
-		return BGAIN_START;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1561,7 +1273,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the slow pan tilt status
 	 */
-	private SlowPanTiltStatus getSlowPanTiltStatus() {
+	private String getSlowPanTiltStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
@@ -1570,16 +1282,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			SlowPanTiltStatus status = (SlowPanTiltStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.SLOW_PAN_TILT);
 
 			if (status == null) {
-				return SlowPanTiltStatus.OFF;
+				return SlowPanTiltStatus.OFF.getName();
 			} else {
-				return status;
+				return status.getName();
 			}
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get slow pan tilt status", e);
-			}
+			this.logger.error("error during get slow pan tilt status", e);
 		}
-		return null;
+		return NONE_VALUE;
 	}
 
 	/**
@@ -1587,7 +1297,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 *
 	 * @return String This returns the auto slow shutter status
 	 */
-	private SlowShutterStatus getAutoSlowShutterStatus() {
+	private String getAutoSlowShutterStatus() {
 		try {
 			int currentSeqNum = ++sequenceNumber;
 			byte[] response = send(
@@ -1596,21 +1306,21 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			SlowShutterStatus status = (SlowShutterStatus) digestResponse(response, currentSeqNum, CommandType.INQUIRY, Command.AUTO_SLOW_SHUTTER);
 
 			if (status == null) {
-				return SlowShutterStatus.OFF;
+				return SlowShutterStatus.OFF.getName();
 			} else {
-				return status;
+				return status.getName();
 			}
 		} catch (Exception e) {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error during get slow auto slow shutter status", e);
-			}
+			this.logger.error("error during get slow auto slow shutter status", e);
 		}
-		return null;
+		return NONE_VALUE;
 	}
+
 	//--------------------------------------------------------------------------------------------------------------------------------
 	//endregion
 
 	/**
+	 * {@inheritdoc}
 	 * This method is used to read data from device
 	 *
 	 * @param command This is a byte array of command to check done reading or not
@@ -1715,9 +1425,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 				if (commandType == CommandType.COMMAND) {
 					if (!Arrays.equals(ReplyStatus.COMPLETION.getCode(), reply)) {
-						if (this.logger.isErrorEnabled()) {
-							this.logger.error("error: Unexpected completion packet: " + this.host + " port: " + this.port);
-						}
+						this.logger.error("error: Unexpected completion packet: " + this.host + " port: " + this.port);
 						throw new IllegalStateException("Unexpected completion packet");
 					}
 				} else if (commandType == CommandType.INQUIRY) {
@@ -1759,7 +1467,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 						}
 						case GAIN_LIMIT_DIRECT:
 						case PRESET: {
-							return (int) reply[2];
+							return Byte.toUnsignedInt(reply[2]);
 						}
 						case BACKLIGHT: {
 							Optional<BacklightStatus> backlightStatus = Arrays.stream(BacklightStatus.values())
@@ -1783,19 +1491,15 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 							return slowPanTiltStatus.orElse(null);
 						}
 						default:
-							break;
+							throw new IllegalStateException("Unexpected command: " + expectedCommand);
 					}
 				}
 			} else {
-				if (this.logger.isErrorEnabled()) {
-					this.logger.error("error: Unexpected sequence number: " + this.host + " port: " + this.port);
-				}
+				this.logger.error("error: Unexpected sequence number: " + this.host + " port: " + this.port);
 				throw new IllegalStateException("Unexpected sequence number");
 			}
 		} else {
-			if (this.logger.isErrorEnabled()) {
-				this.logger.error("error: Unexpected reply: " + this.host + " port: " + this.port);
-			}
+			this.logger.error("error: Unexpected reply: " + this.host + " port: " + this.port);
 			throw new IllegalStateException("Unexpected reply");
 		}
 
@@ -1816,7 +1520,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		AdvancedControllableProperty.Button button = new AdvancedControllableProperty.Button();
 		button.setLabel(label);
 		button.setLabelPressed("Running...");
-		button.setGracePeriod(1000L);
+		button.setGracePeriod(100L);
 
 		return new AdvancedControllableProperty(name, new Date(), button, "");
 	}
