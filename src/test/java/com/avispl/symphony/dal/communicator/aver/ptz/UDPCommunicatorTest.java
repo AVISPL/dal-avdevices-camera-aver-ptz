@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.DevelopmentTest;
+import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.RealDeviceTest;
 
 /**
  * Unit test for UDP Communicator
@@ -45,7 +45,7 @@ public class UDPCommunicatorTest {
 	 * Expect send inquiry command and receive success reply packet from UDP server
 	 */
 	@Test
-	@Category(DevelopmentTest.class)
+	@Category(RealDeviceTest.class)
 	public void testSendData() throws Exception {
 		byte[] data = new byte[] { 0x01, 0x10, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, (byte) 0x81, 0x09, 0x04, 0x00, (byte) 0xFF };
 		byte[] expectedResponse = new byte[] { 0x01, 0x11, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, (byte) 0x90, 0x50, 0x02, (byte) 0xFF };
