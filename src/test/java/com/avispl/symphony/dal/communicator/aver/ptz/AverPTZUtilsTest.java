@@ -31,7 +31,7 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowPan
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowShutterStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.WBMode;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.ZoomControl;
-import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.ProductionTest;
+import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.MockTest;
 
 /**
  * Unit test for AverPTZ Utils - method build send string
@@ -53,7 +53,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for power on which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPowerOn() {
 		byte[] actualPacketPowerOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.POWER.getCode(), PowerStatus.ON.getCode());
@@ -66,7 +66,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for power off which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPowerOff() {
 		byte[] actualPacketPowerOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.POWER.getCode(), PowerStatus.OFF.getCode());
@@ -79,7 +79,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for zoom tele which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketZoomTele() {
 		int zoomSpeed = 1;
 		byte[] actualPacketZoomTele = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
@@ -93,7 +93,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for zoom wide which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketZoomWide() {
 		int zoomSpeed = 1;
 		byte[] actualPacketZoomWide = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
@@ -107,7 +107,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for zoom stop which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketZoomStop() {
 		byte[] actualPacketZoomStop = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.ZOOM.getCode(), ZoomControl.STOP.getCode());
@@ -120,7 +120,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for focus far which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketFocusFar() {
 		int focusSpeed = 1;
 		byte[] actualPacketFocusFar = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
@@ -134,7 +134,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for focus near which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketFocusNear() {
 		int focusSpeed = 1;
 		byte[] actualPacketFocusNear = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
@@ -148,7 +148,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for focus stop which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketFocusStop() {
 		byte[] actualPacketFocusNear = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.FOCUS.getCode(), FocusControl.STOP.getCode());
@@ -161,7 +161,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for auto-focus which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketAutoFocus() {
 		byte[] actualPacketFocusAutoFocus = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.FOCUS_MODE.getCode(), FocusMode.AUTO.getCode());
@@ -173,7 +173,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for manual-focus which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketManualFocus() {
 		byte[] actualPacketFocusManualFocus = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.FOCUS_MODE.getCode(), FocusMode.MANUAL.getCode());
@@ -186,7 +186,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for focus one push which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketFocusOnePush() {
 		byte[] actualPacketFocusOnePush = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.FOCUS_ONE_PUSH.getCode());
@@ -199,7 +199,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for WB auto mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketWBAutoMode() {
 		byte[] actualPacketWBAuto = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.AUTO.getCode());
@@ -212,7 +212,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for WB indoor mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketWBIndoorMode() {
 		byte[] actualPacketWBIndoor = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.INDOOR.getCode());
@@ -225,7 +225,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for WB outdoor mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketWBOutdoorMode() {
 		byte[] actualPacketWBOutdoor = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.OUTDOOR.getCode());
@@ -238,7 +238,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for WB one push mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketWBOnePushMode() {
 		byte[] actualPacketWBOnePush = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.ONE_PUSH_WB.getCode());
@@ -251,7 +251,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for WB manual mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketWBManualMode() {
 		byte[] actualPacketWBManual = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.WB_MODE.getCode(), WBMode.MANUAL.getCode());
@@ -264,7 +264,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for WB one push trigger which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketWBOnePushTrigger() {
 		byte[] actualPacketWBOnePushTrigger = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.WB_ONE_PUSH_TRIGGER.getCode());
@@ -277,7 +277,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for RGain up control which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketRGainUp() {
 		byte[] actualPacketRGainUp = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.RGAIN.getCode(), RGainControl.UP.getCode());
@@ -290,7 +290,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for RGain down control which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketRGainDown() {
 		byte[] actualPacketRGainDown = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.RGAIN.getCode(), RGainControl.DOWN.getCode());
@@ -303,7 +303,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for BGain up control which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketBGainUp() {
 		byte[] actualPacketBGainUp = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.BGAIN.getCode(), BGainControl.UP.getCode());
@@ -316,7 +316,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for BGain down control which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketBGainDown() {
 		byte[] actualPacketBGainDown = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.BGAIN.getCode(), BGainControl.DOWN.getCode());
@@ -329,7 +329,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for AE full auto mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketAEFullAutoMode() {
 		byte[] actualPacketAEFullAuto = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.FULL_AUTO.getCode());
@@ -342,7 +342,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for AE manual mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketAEManualMode() {
 		byte[] actualPacketAEManual = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.MANUAL.getCode());
@@ -355,7 +355,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for AE shutter priority mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketAEShutterPriorityMode() {
 		byte[] actualPacketAEShutterPriority = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.SHUTTER_PRIORITY.getCode());
@@ -368,7 +368,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for AE iris priority mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketAEIrisPriorityMode() {
 		byte[] actualPacketAEIrisPriority = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.AE_MODE.getCode(), AEMode.IRIS_PRIORITY.getCode());
@@ -381,7 +381,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for Slow shutter on which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketSlowShutterOn() {
 		byte[] actualPacketSlowShutterOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.ON.getCode());
@@ -394,7 +394,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for Slow shutter off which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketSlowShutterOff() {
 		byte[] actualPacketSlowShutterOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.AUTO_SLOW_SHUTTER.getCode(), SlowShutterStatus.OFF.getCode());
@@ -407,7 +407,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for shutter direct which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketShutterDirect() {
 		int shutterPosition = 40;
 
@@ -422,7 +422,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for iris direct which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketIrisDirect() {
 		int irisPosition = 9;
 
@@ -437,7 +437,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for gain direct which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketGainDirect() {
 		int gainPosition = 23;
 
@@ -452,7 +452,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for gain limit direct which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketGainLimitDirect() {
 		int gainPosition = 23;
 
@@ -467,7 +467,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for gain exp comp direct which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketExpCompDirect() {
 		int expComp = 5;
 
@@ -482,7 +482,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for backlight on which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketBacklightOn() {
 		byte[] actualPacketBackLightOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.BACKLIGHT.getCode(), BacklightStatus.ON.getCode());
@@ -495,7 +495,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for backlight off which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketBacklightOff() {
 		byte[] actualPacketBackLightOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.BACKLIGHT.getCode(), BacklightStatus.OFF.getCode());
@@ -508,7 +508,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for preset set which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPresetSet() {
 		int preset = 2;
 		byte[] actualPacketSetPreset = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
@@ -522,7 +522,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for preset recall which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPresetRecall() {
 		int preset = 2;
 		byte[] actualPacketLoadPreset = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.CAMERA.getCode(),
@@ -536,7 +536,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for slow pan-tilt on which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketSlowPanTiltOn() {
 		byte[] actualPacketSlowPanTiltOn = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
 				Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.ON.getCode());
@@ -549,7 +549,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for slow pan-tilt off which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketSlowPanTiltOff() {
 		byte[] actualPacketSlowPanTiltOff = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
 				Command.SLOW_PAN_TILT.getCode(), SlowPanTiltStatus.OFF.getCode());
@@ -562,7 +562,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive up which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveStop() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -579,7 +579,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive up which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveUp() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -596,7 +596,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive down which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveDown() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -613,7 +613,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive left which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveLeft() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -630,7 +630,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive right which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveRight() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -647,7 +647,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive down left which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveDownLeft() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -664,7 +664,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive down right which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveDownRight() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -681,7 +681,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive up left which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveUpLeft() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -698,7 +698,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive up right which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveUpRight() throws IOException {
 		outputStream = new ByteArrayOutputStream();
 		outputStream.write(new byte[] { (byte) panSpeed, (byte) tiltSpeed });
@@ -715,7 +715,7 @@ public class AverPTZUtilsTest {
 	 * Expect build a control command for pan-tilt drive home which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPanTiltDriveHome() {
 		byte[] actualPacketPanTiltHome = buildSendPacket(cameraID, sequenceNumber, PayloadType.COMMAND.getCode(), CommandType.COMMAND.getCode(), PayloadCategory.PAN_TILTER.getCode(),
 				Command.PAN_TILT_HOME.getCode());
@@ -728,7 +728,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for power status which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPowerStatusInq() {
 		byte[] actualPacketPowerInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.POWER.getCode());
 
@@ -740,7 +740,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for focus status which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketFocusStatusInq() {
 		byte[] actualPacketFocusInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.FOCUS_MODE.getCode());
@@ -753,7 +753,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for AE Mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketAEModeInq() {
 		byte[] actualPacketAEModeInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.AE_MODE.getCode());
 
@@ -765,7 +765,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for slow shutter which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketSlowShutterInq() {
 		byte[] actualPacketSlowShutterInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.AUTO_SLOW_SHUTTER.getCode());
@@ -778,7 +778,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for shutter position which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketShutterPosInq() {
 		byte[] actualPacketShutterPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				new byte[] { Command.SHUTTER_DIRECT.getCode()[0] });
@@ -791,7 +791,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for iris position which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketIrisPosInq() {
 		byte[] actualPacketIrisPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				new byte[] { Command.IRIS_DIRECT.getCode()[0] });
@@ -804,7 +804,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for gain position which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketGainPosInq() {
 		byte[] actualPacketGainPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				new byte[] { Command.GAIN_DIRECT.getCode()[0] });
@@ -817,7 +817,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for gain limit position which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketGainLimitPosInq() {
 		byte[] actualPacketAEGainPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.GAIN_LIMIT_DIRECT.getCode());
@@ -830,7 +830,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for exposure position which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketExpCompPosInq() {
 		byte[] actualPacketExpCompPosInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				new byte[] { Command.EXP_COMP_DIRECT.getCode()[0] });
@@ -843,7 +843,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for backlight status which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketBacklightInq() {
 		byte[] actualPacketExpBacklightInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.BACKLIGHT.getCode());
@@ -856,7 +856,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for WB mode which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketWBModeInq() {
 		byte[] actualPacketWBModeInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(), Command.WB_MODE.getCode());
 
@@ -868,7 +868,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for RGain value which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketRGainInq() {
 		byte[] actualPacketRGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.RGAIN_INQ.getCode());
@@ -881,7 +881,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for BGain value which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketBGainInq() {
 		byte[] actualPacketBGainInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.BGAIN_INQ.getCode());
@@ -894,7 +894,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for slow pan-tilt status which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketSlowPanTiltInq() {
 		byte[] actualPacketSlowPanTiltInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.PAN_TILTER.getCode(),
 				Command.SLOW_PAN_TILT.getCode());
@@ -907,7 +907,7 @@ public class AverPTZUtilsTest {
 	 * Expect build an inquiry command for last preset recalled which match expected packet
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBuildSendPacketPresetRecallInq() {
 		byte[] actualPacketSlowPanTiltInq = buildSendPacket(cameraID, sequenceNumber, PayloadType.INQUIRY.getCode(), CommandType.INQUIRY.getCode(), PayloadCategory.CAMERA.getCode(),
 				Command.PRESET.getCode());

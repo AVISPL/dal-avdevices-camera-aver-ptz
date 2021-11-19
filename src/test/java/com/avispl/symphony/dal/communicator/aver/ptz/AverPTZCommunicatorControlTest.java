@@ -36,7 +36,7 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowPan
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowShutterStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.WBMode;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.ZoomControl;
-import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.ProductionTest;
+import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.MockTest;
 
 /**
  * Unit test for Control AverPTZ Communicator
@@ -59,7 +59,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method powerOn
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPowerOn() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.POWER.getName());
@@ -75,7 +75,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method powerOff
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPowerOff() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.POWER.getName());
@@ -91,7 +91,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method zoomTele
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testZoomTete() throws IOException {
 		int zoomSpeed = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -110,7 +110,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method zoomWide
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testZoomWide() throws IOException {
 		int zoomSpeed = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -129,7 +129,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method autoFocus
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testAutoFocusMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName());
@@ -145,7 +145,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method autoFocus
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testManualFocusMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName());
@@ -161,7 +161,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method onePushFocus
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testOnePushFocusMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName());
@@ -177,7 +177,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method focusFar
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testFocusFar() throws IOException {
 		int focusSpeed = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -196,7 +196,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method focusNear
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testFocusNear() throws IOException {
 		int focusSpeed = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -215,7 +215,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method backlightOn
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBacklightOn() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName());
@@ -231,7 +231,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method backlightOff
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBacklightOff() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.BACKLIGHT.getName());
@@ -247,7 +247,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method aeFullAuto
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testAEFullAutoMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName());
@@ -263,7 +263,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method aeIrisPriority
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testAEIrisPriorityMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName());
@@ -279,7 +279,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method aeShutterPriority
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testAEShutterPriorityMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName());
@@ -295,7 +295,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method aeManual
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testAEManualMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName());
@@ -311,7 +311,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method expCompDirect
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testExpCompDirect() throws IOException {
 		float exposureValue = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -328,7 +328,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method gainLimitDirect
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testGainLimitDirect() throws IOException {
 		float gainLimitLevel = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -345,7 +345,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method gainDirect
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testGainDirect() throws IOException {
 		float gainLevel = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -362,7 +362,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method irisDirect
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testIrisDirect() throws IOException {
 		float irisLevel = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -379,7 +379,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method shutterDirect
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testShutterDirect() throws IOException {
 		float shutterLevel = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
@@ -396,7 +396,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method slowShutterOn
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testAutoSlowShutterOn() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName());
@@ -412,7 +412,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method slowShutterOff
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testAutoSlowShutterOff() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.EXPOSURE.getName() + HASH + Command.AUTO_SLOW_SHUTTER.getName());
@@ -428,7 +428,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method wbAuto
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testWBAutoMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
@@ -444,7 +444,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method wbIndoor
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testWBIndoorMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
@@ -460,7 +460,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method wbOutdoor
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testWBOutdoorMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
@@ -476,7 +476,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method wbOnePush
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testWBOnePushMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
@@ -492,7 +492,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method wbOnePushTrigger
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testWBOnePushTriggerMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName());
@@ -508,7 +508,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method rGainUp
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testRGainUp() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName());
@@ -524,7 +524,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method rGainDown
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testRGainDown() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.DOWN.getName());
@@ -540,7 +540,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method bGainUp
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBGainUp() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.UP.getName());
@@ -556,7 +556,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method bGainDown
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testBGainDown() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.DOWN.getName());
@@ -572,7 +572,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltUp
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveUp() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -600,7 +600,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltDown
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveDown() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -628,7 +628,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltLeft
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveLeft() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -656,7 +656,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltRight
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveRight() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -684,7 +684,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltUpLeft
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveUpLeft() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -712,7 +712,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltUpRight
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveUpRight() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -740,7 +740,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltDownLeft
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveDownLeft() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -768,7 +768,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltDownRight
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltDriveDownRight() throws IOException {
 		int panSpeed = 1, tiltSpeed = 1;
 		ByteArrayOutputStream outputStreamDrive = new ByteArrayOutputStream();
@@ -796,7 +796,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method panTiltHome
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testPanTiltHome() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Command.PAN_TILT_HOME.getName());
@@ -811,7 +811,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method slowPanTiltOn
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testSlowPanTiltOn() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName());
@@ -826,7 +826,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect verify with method slowPanTiltOff
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testSlowPanTiltOff() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
 		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName());
@@ -841,7 +841,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect throw IllegalStateException with right message
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testInvalidControlProperty() throws IOException {
 		exceptionRule.expect(IllegalStateException.class);
 		exceptionRule.expectMessage("Unexpected value: " + Command.RGAIN_INQ);
@@ -857,7 +857,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect throw IllegalStateException with right message
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testInvalidImageProcessProperty() throws IOException {
 		String property = Command.IMAGE_PROCESS.getName() + HASH + Command.AE_MODE.getName();
 		String[] splitProperty = property.split(String.valueOf(HASH));
@@ -876,7 +876,7 @@ public class AverPTZCommunicatorControlTest {
 	 * Expect throw IllegalStateException with right message
 	 */
 	@Test
-	@Category(ProductionTest.class)
+	@Category(MockTest.class)
 	public void testInvalidExposureProperty() throws IOException {
 		exceptionRule.expect(IllegalStateException.class);
 		exceptionRule.expectMessage("Unexpected value: " + Command.WB_MODE);

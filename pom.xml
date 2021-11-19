@@ -14,16 +14,16 @@
 
   <profiles>
     <profile>
-      <id>DevelopmentTest</id>
+      <id>RealDeviceTest</id>
       <properties>
-        <testcase.groups>com.avispl.symphony.dal.communicator.aver.ptz.interfaces.DevelopmentTest
+        <testcase.groups>com.avispl.symphony.dal.communicator.aver.ptz.interfaces.RealDeviceTest
         </testcase.groups>
       </properties>
     </profile>
     <profile>
-      <id>ProductionTest</id>
+      <id>MockTest</id>
       <properties>
-        <testcase.groups>com.avispl.symphony.dal.communicator.aver.ptz.interfaces.ProductionTest
+        <testcase.groups>com.avispl.symphony.dal.communicator.aver.ptz.interfaces.MockTest
         </testcase.groups>
       </properties>
     </profile>
@@ -58,23 +58,23 @@
     <dependency>
       <groupId>com.avispl.symphony.api</groupId>
       <artifactId>symphony-api-commons</artifactId>
-      <version>5.3.0.11028</version>
+      <version>5.3.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/symphony-api-commons-5.3.0.11028.jar</systemPath>
+      <systemPath>${basedir}/lib/symphony-api-commons-5.3.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.avispl.symphony.api</groupId>
       <artifactId>symphony-api-dal</artifactId>
-      <version>5.3.0.11028</version>
+      <version>5.3.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/symphony-api-dal-5.3.0.11028.jar</systemPath>
+      <systemPath>${basedir}/lib/symphony-api-dal-5.3.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.avispl.symphony.dal</groupId>
       <artifactId>symphony-dal-commons</artifactId>
-      <version>5.3.0.11028</version>
+      <version>5.3.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/symphony-dal-commons-5.3.0.11028.jar</systemPath>
+      <systemPath>${basedir}/lib/symphony-dal-commons-5.3.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.icmp4j</groupId>

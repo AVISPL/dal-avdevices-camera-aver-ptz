@@ -1,4 +1,4 @@
 package com.avispl.symphony.dal.communicator.aver.ptz.interfaces;
 
-public interface DevelopmentTest {
+public interface MockTest {
 }
