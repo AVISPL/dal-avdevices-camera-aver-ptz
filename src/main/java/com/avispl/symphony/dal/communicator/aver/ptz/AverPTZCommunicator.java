@@ -274,7 +274,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			case ZOOM: {
 				if (Objects.equals(splitProperty[1], ZoomControl.TELE.getName())) {
 					performControl(PayloadCategory.CAMERA, Command.ZOOM, (byte) (ZoomControl.TELE.getCode() + zoomSpeed));
-				} else if (splitProperty[1].equals(ZoomControl.WIDE.getName())) {
+				} else if (Objects.equals(splitProperty[1], ZoomControl.WIDE.getName())) {
 					performControl(PayloadCategory.CAMERA, Command.ZOOM, (byte) (ZoomControl.WIDE.getCode() + zoomSpeed));
 				}
 				performControl(PayloadCategory.CAMERA, Command.ZOOM, ZoomControl.STOP.getCode());
@@ -338,10 +338,16 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 				break;
 			}
 			case PRESET: {
+				int preset = Integer.parseInt(value);
+
+				if (preset < 0 || preset > 255) {
+					throw new IllegalArgumentException("Preset with value " + preset + " is out of range. Preset value must between 0 and 255");
+				}
+
 				if (Objects.equals(splitProperty[1], PresetControl.SET.getName())) {
-					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.SET.getCode(), Byte.parseByte((value)));
+					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.SET.getCode(), (byte) preset);
 				} else if (Objects.equals(splitProperty[1], PresetControl.RECALL.getName())) {
-					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.RECALL.getCode(), Byte.parseByte((value)));
+					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.RECALL.getCode(), (byte) preset);
 				}
 				break;
 			}
@@ -464,7 +470,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			return;
 		}
 
-		stats.put(Command.POWER.getName(), "");
+		stats.put(Command.POWER.getName(), powerStatus);
 
 		if (Objects.equals(powerStatus, PowerStatus.OFF.getName())) {
 			advancedControllableProperties.add(createSwitch(Command.POWER.getName(), 0, PowerStatus.OFF.getName(), PowerStatus.ON.getName()));
@@ -567,14 +573,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			// All of these DIRECT (Except Gain limit) case are share the same logic of SHUTTER_DIRECT
 			case GAIN_LIMIT_DIRECT:
 				float gainLimitLevel = Float.parseFloat(value);
-				performControl(PayloadCategory.CAMERA, exposureCommand, ((byte) ((int) gainLimitLevel)));
+				performControl(PayloadCategory.CAMERA, exposureCommand, (byte) gainLimitLevel);
 				break;
 			case EXP_COMP_DIRECT:
 			case GAIN_DIRECT:
 			case IRIS_DIRECT:
 			case SHUTTER_DIRECT: {
 				float directValue = Float.parseFloat(value);
-				performControl(PayloadCategory.CAMERA, exposureCommand, convertOneByteNumberToTwoBytesArray((byte) ((int) directValue)));
+				performControl(PayloadCategory.CAMERA, exposureCommand, convertOneByteNumberToTwoBytesArray((byte) directValue));
 				break;
 			}
 			case AUTO_SLOW_SHUTTER: {
@@ -611,7 +617,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
 		} catch (Exception e) {
 			this.logger.error("error during command " + command.getName() + " send", e);
-			throw new CommandFailureException(this.getHost(), getHexByteString(request), getHexByteString(response));
+			throw new CommandFailureException(this.getHost(), getHexByteString(request), getHexByteString(response), e);
 		}
 	}
 	//endregion
@@ -651,7 +657,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			return;
 		}
 
-		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), "");
+		stats.put(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), focusMode);
 
 		if (Objects.equals(focusMode, FocusMode.AUTO.getName())) {
 			advancedControllableProperties.add(createSwitch(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName(), 0, FocusMode.AUTO.getName(), FocusMode.MANUAL.getName()));
@@ -700,7 +706,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			return;
 		}
 
-		stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), "");
+		stats.put(Command.EXPOSURE.getName() + HASH + Command.AE_MODE.getName(), aeMode.getName());
 
 		List<String> aeModeList = new ArrayList<>();
 		aeModeList.add(AEMode.FULL_AUTO.getName());
@@ -821,8 +827,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param advancedControllableProperties is the list that store all controllable properties
 	 */
 	private void populateWBControl(Map<String, String> stats, List<AdvancedControllableProperty> advancedControllableProperties) {
-		stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), "");
-
 		List<String> wbModeList = new ArrayList<>();
 		wbModeList.add(WBMode.AUTO.getName());
 		wbModeList.add(WBMode.INDOOR.getName());
@@ -831,6 +835,8 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		wbModeList.add(WBMode.MANUAL.getName());
 
 		String wbMode = this.getWBMode();
+
+		stats.put(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), wbMode);
 		advancedControllableProperties.add(createDropdown(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName(), wbModeList, wbMode));
 
 		if (Objects.equals(WBMode.MANUAL.getName(), wbMode)) {
@@ -936,7 +942,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			return;
 		}
 
-		stats.put(propertyName, "");
+		stats.put(propertyName, String.valueOf(initialValue));
 		stats.put(currentPropertyName, propertyValue);
 		advancedControllableProperties.add(createSlider(propertyName, labelStart, labelEnd, rangeStart, rangeEnd, initialValue));
 	}
@@ -958,11 +964,11 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			return;
 		}
 
-		stats.put(propertyName, "");
-
 		if (Objects.equals(currentStatus, labelOn)) {
+			stats.put(propertyName, String.valueOf(1));
 			advancedControllableProperties.add(createSwitch(propertyName, 1, labelOff, labelOn));
 		} else if (Objects.equals(currentStatus, labelOff)) {
+			stats.put(propertyName, String.valueOf(0));
 			advancedControllableProperties.add(createSwitch(propertyName, 0, labelOff, labelOn));
 		}
 	}

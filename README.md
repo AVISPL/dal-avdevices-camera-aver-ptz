@@ -7,3 +7,5 @@ DAL adapter for Aver PTZ cameras
 **Build project with all tests: ``` mvn clean install ```**
 
 **Build project with only development tests: ``` mvn clean install -P DevelopmentTest```**
+
+**Build project with only production tests: ``` mvn clean install -P ProductionTest```**
