@@ -38,6 +38,7 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowPan
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowShutterStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.WBMode;
 import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.DevelopmentTest;
+import com.avispl.symphony.dal.communicator.aver.ptz.interfaces.ProductionTest;
 
 /**
  * Unit test for AverPTZ Communicator
@@ -78,6 +79,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect not throw exception
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseControlCommand() {
 		String status = (String) averPTZCommunicator.digestResponse(ReplyPacket.COMPLETION.getCode(), 1, CommandType.COMMAND, null);
 		Assert.assertNull(status);
@@ -88,6 +90,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect status power on
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandPowerOn() {
 		PowerStatus status = (PowerStatus) averPTZCommunicator.digestResponse(ReplyPacket.POWER_ON.getCode(), 1, CommandType.INQUIRY, Command.POWER);
 		Assert.assertEquals(PowerStatus.ON, status);
@@ -98,6 +101,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect status power off
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandPowerOff() {
 		PowerStatus status = (PowerStatus) averPTZCommunicator.digestResponse(ReplyPacket.POWER_OFF.getCode(), 1, CommandType.INQUIRY, Command.POWER);
 		Assert.assertEquals(PowerStatus.OFF, status);
@@ -108,6 +112,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect auto focus mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandAutoFocus() {
 		FocusMode mode = (FocusMode) averPTZCommunicator.digestResponse(ReplyPacket.FOCUS_AUTO_MODE.getCode(), 1, CommandType.INQUIRY, Command.FOCUS_MODE);
 		Assert.assertEquals(FocusMode.AUTO, mode);
@@ -118,6 +123,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect manual focus mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandManualFocus() {
 		FocusMode mode = (FocusMode) averPTZCommunicator.digestResponse(ReplyPacket.FOCUS_MANUAL_MODE.getCode(), 1, CommandType.INQUIRY, Command.FOCUS_MODE);
 		Assert.assertEquals(FocusMode.MANUAL, mode);
@@ -128,6 +134,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect AE full auto mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandAEFullAutoMode() {
 		AEMode mode = (AEMode) averPTZCommunicator.digestResponse(ReplyPacket.AE_FULL_AUTO_MODE.getCode(), 1, CommandType.INQUIRY, Command.AE_MODE);
 		Assert.assertEquals(AEMode.FULL_AUTO, mode);
@@ -138,6 +145,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect AE manual mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandAEManualMode() {
 		AEMode mode = (AEMode) averPTZCommunicator.digestResponse(ReplyPacket.AE_MANUAL_MODE.getCode(), 1, CommandType.INQUIRY, Command.AE_MODE);
 		Assert.assertEquals(AEMode.MANUAL, mode);
@@ -148,6 +156,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect AE shutter priority mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandAEShutterPriorityMode() {
 		AEMode mode = (AEMode) averPTZCommunicator.digestResponse(ReplyPacket.AE_SHUTTER_PRIORITY_MODE.getCode(), 1, CommandType.INQUIRY, Command.AE_MODE);
 		Assert.assertEquals(AEMode.SHUTTER_PRIORITY, mode);
@@ -158,6 +167,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect AE full auto mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandAEIrisPriorityMode() {
 		AEMode mode = (AEMode) averPTZCommunicator.digestResponse(ReplyPacket.AE_IRIS_PRIORITY_MODE.getCode(), 1, CommandType.INQUIRY, Command.AE_MODE);
 		Assert.assertEquals(AEMode.IRIS_PRIORITY, mode);
@@ -168,6 +178,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect status auto slow shutter on
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandSlowShutterOn() {
 		SlowShutterStatus status = (SlowShutterStatus) averPTZCommunicator.digestResponse(ReplyPacket.AUTO_SLOW_SHUTTER_ON.getCode(), 1, CommandType.INQUIRY, Command.AUTO_SLOW_SHUTTER);
 		Assert.assertEquals(SlowShutterStatus.ON, status);
@@ -178,6 +189,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect status auto slow shutter off
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandSlowShutterOff() {
 		SlowShutterStatus status = (SlowShutterStatus) averPTZCommunicator.digestResponse(ReplyPacket.AUTO_SLOW_SHUTTER_OFF.getCode(), 1, CommandType.INQUIRY, Command.AUTO_SLOW_SHUTTER);
 		Assert.assertEquals(SlowShutterStatus.OFF, status);
@@ -188,6 +200,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect shutter speed value is 15
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandShutterSpeed() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.SHUTTER_SPEED.getCode(), 1, CommandType.INQUIRY, Command.SHUTTER_DIRECT);
 		Assert.assertEquals(15, value);
@@ -198,6 +211,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect iris level value is 13
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandIrisLevel() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.IRIS_LEVEL.getCode(), 1, CommandType.INQUIRY, Command.IRIS_DIRECT);
 		Assert.assertEquals(13, value);
@@ -208,6 +222,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect gain level value is 45
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandGainLevel() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.GAIN_LEVEL.getCode(), 1, CommandType.INQUIRY, Command.GAIN_DIRECT);
 		Assert.assertEquals(45, value);
@@ -218,6 +233,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect RGain value is 33
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandRGainValue() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.RGAIN.getCode(), 1, CommandType.INQUIRY, Command.RGAIN_INQ);
 		Assert.assertEquals(33, value);
@@ -228,6 +244,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect BGain value is 52
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandBGainValue() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.BGAIN.getCode(), 1, CommandType.INQUIRY, Command.BGAIN_INQ);
 		Assert.assertEquals(52, value);
@@ -238,6 +255,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect gain limit level value is 8
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandGainLimitLevel() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.GAIN_LIMIT_LEVEL.getCode(), 1, CommandType.INQUIRY, Command.GAIN_LIMIT_DIRECT);
 		Assert.assertEquals(8, value);
@@ -248,6 +266,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect exposure value is 9
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandExposureValue() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.EXPOSURE_VALUE.getCode(), 1, CommandType.INQUIRY, Command.EXP_COMP_DIRECT);
 		Assert.assertEquals(9, value);
@@ -258,6 +277,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect last preset recalled value is 2
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandLastPresetRecalled() {
 		int value = (int) averPTZCommunicator.digestResponse(ReplyPacket.LAST_PRESET_RECALLED.getCode(), 1, CommandType.INQUIRY, Command.PRESET);
 		Assert.assertEquals(2, value);
@@ -268,6 +288,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect WB auto mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandWBAutoMode() {
 		WBMode mode = (WBMode) averPTZCommunicator.digestResponse(ReplyPacket.WB_AUTO_MODE.getCode(), 1, CommandType.INQUIRY, Command.WB_MODE);
 		Assert.assertEquals(WBMode.AUTO, mode);
@@ -278,6 +299,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect WB indoor mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandWBIndoorMode() {
 		WBMode mode = (WBMode) averPTZCommunicator.digestResponse(ReplyPacket.WB_INDOOR_MODE.getCode(), 1, CommandType.INQUIRY, Command.WB_MODE);
 		Assert.assertEquals(WBMode.INDOOR, mode);
@@ -288,6 +310,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect WB outdoor mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandWBOutdoorMode() {
 		WBMode mode = (WBMode) averPTZCommunicator.digestResponse(ReplyPacket.WB_OUTDOOR_MODE.getCode(), 1, CommandType.INQUIRY, Command.WB_MODE);
 		Assert.assertEquals(WBMode.OUTDOOR, mode);
@@ -298,6 +321,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect WB one push mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandWBOnePushMode() {
 		WBMode mode = (WBMode) averPTZCommunicator.digestResponse(ReplyPacket.WB_ONE_PUSH_MODE.getCode(), 1, CommandType.INQUIRY, Command.WB_MODE);
 		Assert.assertEquals(WBMode.ONE_PUSH_WB, mode);
@@ -308,6 +332,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect WB manual mode
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandWBManualMode() {
 		WBMode mode = (WBMode) averPTZCommunicator.digestResponse(ReplyPacket.WB_MANUAL_MODE.getCode(), 1, CommandType.INQUIRY, Command.WB_MODE);
 		Assert.assertEquals(WBMode.MANUAL, mode);
@@ -318,6 +343,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect Backlight on
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandBacklightOn() {
 		BacklightStatus mode = (BacklightStatus) averPTZCommunicator.digestResponse(ReplyPacket.BACKLIGHT_ON.getCode(), 1, CommandType.INQUIRY, Command.BACKLIGHT);
 		Assert.assertEquals(BacklightStatus.ON, mode);
@@ -328,6 +354,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect Backlight off
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandBacklightOff() {
 		BacklightStatus mode = (BacklightStatus) averPTZCommunicator.digestResponse(ReplyPacket.BACKLIGHT_OFF.getCode(), 1, CommandType.INQUIRY, Command.BACKLIGHT);
 		Assert.assertEquals(BacklightStatus.OFF, mode);
@@ -338,6 +365,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect Slow pan tilt on
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandSlowPanTiltOn() {
 		SlowPanTiltStatus mode = (SlowPanTiltStatus) averPTZCommunicator.digestResponse(ReplyPacket.SLOW_PAN_TILT_ON.getCode(), 1, CommandType.INQUIRY, Command.SLOW_PAN_TILT);
 		Assert.assertEquals(SlowPanTiltStatus.ON, mode);
@@ -348,6 +376,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect Slow pan tilt off
 	 */
 	@Test
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandSlowPanTiltOff() {
 		SlowPanTiltStatus mode = (SlowPanTiltStatus) averPTZCommunicator.digestResponse(ReplyPacket.SLOW_PAN_TILT_OFF.getCode(), 1, CommandType.INQUIRY, Command.SLOW_PAN_TILT);
 		Assert.assertEquals(SlowPanTiltStatus.OFF, mode);
@@ -358,6 +387,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect throw an illegal state exception with message "Unexpected reply"
 	 */
 	@Test()
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandUnexpectedReply() {
 		exceptionRule.expect(IllegalStateException.class);
 		exceptionRule.expectMessage("Unexpected reply");
@@ -371,6 +401,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect throw an illegal state exception with message "Unexpected sequence number"
 	 */
 	@Test()
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandUnexpectedSequenceNumber() {
 		exceptionRule.expect(IllegalStateException.class);
 		exceptionRule.expectMessage("Unexpected sequence number");
@@ -384,6 +415,7 @@ public class AverPTZCommunicatorTest {
 	 * Expect throw an illegal state exception with message "Unexpected completion packet"
 	 */
 	@Test()
+	@Category(ProductionTest.class)
 	public void testDigestResponseInquiryCommandUnexpectedCompletionPacket() {
 		exceptionRule.expect(IllegalStateException.class);
 		exceptionRule.expectMessage("Unexpected completion packet");
