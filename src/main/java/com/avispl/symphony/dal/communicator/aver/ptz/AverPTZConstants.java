@@ -52,8 +52,10 @@ public class AverPTZConstants {
 			Arrays.asList("0", "F14", "F11", "F8.0", "F6.8", "F5.6", "F4.8", "F4.0", "F3.4", "F2.8", "F2.4", "F2.0", "F1.8", "F1.6"));
 	public static final String SWITCH_STATUS_ON = "1";
 	public static final String SWITCH_STATUS_OFF = "0";
-	public static final long DELAY_PERIOD = 1000;
+	public static final long DELAY_PERIOD = 45000;
 	public static final String PLUS = "+";
 	public static final String MINUS = "-";
 	public static final String NONE_VALUE = "None";
+	public static final String CLOSE_PARENTHESIS = "\\)";
+	public static final String DEFAULT_PRESET = "Please select a preset";
 }

@@ -15,8 +15,11 @@ public enum PresetControl {
 	 * Control name: SAVE, RECALL
 	 * Extended property name: Save, Load
 	 */
+	PRESET_VALUE("PresetValue", (byte) 0x00),
+	LAST_PRESET_RECALLED("LastPresetRecalled", (byte) 0x00),
 	SET("Save", (byte) 0x01),
 	RECALL("Load", (byte) 0x02);
+
 
 	private final String name;
 	private final byte code;

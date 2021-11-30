@@ -22,6 +22,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.avispl.symphony.api.dal.dto.control.ControllableProperty;
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.Index;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.PayloadCategory;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.command.Command;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.AEMode;
@@ -132,7 +133,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testAutoFocusMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName());
+		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Index.ONE.getName() + Command.FOCUS_MODE.getName());
 		controllableProperty.setValue("0");
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.FOCUS_MODE, FocusMode.AUTO.getCode());
@@ -148,7 +149,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testManualFocusMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName());
+		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Index.ONE.getName() + Command.FOCUS_MODE.getName());
 		controllableProperty.setValue("1");
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.FOCUS_MODE, FocusMode.MANUAL.getCode());
@@ -164,7 +165,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testOnePushFocusMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Command.FOCUS_ONE_PUSH.getName());
+		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Index.TWO.getName() + Command.FOCUS_ONE_PUSH.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.FOCUS_ONE_PUSH);
@@ -181,7 +182,7 @@ public class AverPTZCommunicatorControlTest {
 	public void testFocusFar() throws IOException {
 		int focusSpeed = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + FocusControl.FAR.getName());
+		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Index.FOUR.getName() + FocusControl.FAR.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.FOCUS, (byte) (FocusControl.FAR.getCode() + focusSpeed));
@@ -200,7 +201,7 @@ public class AverPTZCommunicatorControlTest {
 	public void testFocusNear() throws IOException {
 		int focusSpeed = 1;
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + FocusControl.NEAR.getName());
+		controllableProperty.setProperty(Command.FOCUS.getName() + HASH + Index.THREE.getName() + FocusControl.NEAR.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.FOCUS, (byte) (FocusControl.NEAR.getCode() + focusSpeed));
@@ -431,7 +432,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testWBAutoMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName());
 		controllableProperty.setValue(WBMode.AUTO.getName());
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.WB_MODE, WBMode.AUTO.getCode());
@@ -447,7 +448,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testWBIndoorMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName());
 		controllableProperty.setValue(WBMode.INDOOR.getName());
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.WB_MODE, WBMode.INDOOR.getCode());
@@ -463,7 +464,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testWBOutdoorMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName());
 		controllableProperty.setValue(WBMode.OUTDOOR.getName());
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.WB_MODE, WBMode.OUTDOOR.getCode());
@@ -479,7 +480,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testWBOnePushMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName());
 		controllableProperty.setValue(WBMode.ONE_PUSH_WB.getName());
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.WB_MODE, WBMode.ONE_PUSH_WB.getCode());
@@ -495,7 +496,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testWBOnePushTriggerMode() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.TWO.getName() + Command.WB_ONE_PUSH_TRIGGER.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.WB_ONE_PUSH_TRIGGER);
@@ -511,7 +512,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testRGainUp() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.UP.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.SIX.getName() + Command.RGAIN.getName() + RGainControl.UP.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.RGAIN, RGainControl.UP.getCode());
@@ -527,7 +528,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testRGainDown() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN.getName() + RGainControl.DOWN.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.SEVEN.getName() + Command.RGAIN.getName() + RGainControl.DOWN.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.RGAIN, RGainControl.DOWN.getCode());
@@ -543,7 +544,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testBGainUp() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.UP.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.THREE.getName() + Command.BGAIN.getName() + BGainControl.UP.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.BGAIN, BGainControl.UP.getCode());
@@ -559,7 +560,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testBGainDown() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN.getName() + BGainControl.DOWN.getName());
+		controllableProperty.setProperty(Command.IMAGE_PROCESS.getName() + HASH + Index.FOUR.getName() + Command.BGAIN.getName() + BGainControl.DOWN.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.CAMERA, Command.BGAIN, BGainControl.DOWN.getCode());
@@ -584,7 +585,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.TWO.getName() + PanTiltDrive.UP.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -612,7 +613,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.THREE.getName() + PanTiltDrive.DOWN.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -640,7 +641,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.LEFT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.FOUR.getName() + PanTiltDrive.LEFT.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -668,7 +669,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.RIGHT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.FIVE.getName() + PanTiltDrive.RIGHT.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -696,7 +697,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_LEFT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.SIX.getName() + PanTiltDrive.UP_LEFT.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -724,7 +725,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.UP_RIGHT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.SEVEN.getName() + PanTiltDrive.UP_RIGHT.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -752,7 +753,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_LEFT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.EIGHT.getName() + PanTiltDrive.DOWN_LEFT.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -780,7 +781,7 @@ public class AverPTZCommunicatorControlTest {
 		outputStreamStop.write(PanTiltDrive.STOP.getCode());
 
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + PanTiltDrive.DOWN_RIGHT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.NINE.getName() + PanTiltDrive.DOWN_RIGHT.getName());
 		controllableProperty.setValue(null);
 
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_DRIVE, outputStreamDrive.toByteArray());
@@ -799,7 +800,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testPanTiltHome() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Command.PAN_TILT_HOME.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.ONE.getName() + Command.PAN_TILT_HOME.getName());
 		controllableProperty.setValue(null);
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.PAN_TILT_HOME);
 		averPTZCommunicator.controlProperty(controllableProperty);
@@ -814,7 +815,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testSlowPanTiltOn() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.ZERO.getName() + Command.SLOW_PAN_TILT.getName());
 		controllableProperty.setValue("1");
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.SLOW_PAN_TILT, SlowPanTiltStatus.ON.getCode());
 		averPTZCommunicator.controlProperty(controllableProperty);
@@ -829,7 +830,7 @@ public class AverPTZCommunicatorControlTest {
 	@Category(MockTest.class)
 	public void testSlowPanTiltOff() throws IOException {
 		ControllableProperty controllableProperty = new ControllableProperty();
-		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName());
+		controllableProperty.setProperty(Command.PAN_TILT_DRIVE.getName() + HASH + Index.ZERO.getName() + Command.SLOW_PAN_TILT.getName());
 		controllableProperty.setValue("0");
 		Mockito.doNothing().when(averPTZCommunicator).performControl(PayloadCategory.PAN_TILTER, Command.SLOW_PAN_TILT, SlowPanTiltStatus.OFF.getCode());
 		averPTZCommunicator.controlProperty(controllableProperty);
@@ -859,7 +860,7 @@ public class AverPTZCommunicatorControlTest {
 	@Test
 	@Category(MockTest.class)
 	public void testInvalidImageProcessProperty() throws IOException {
-		String property = Command.IMAGE_PROCESS.getName() + HASH + Command.AE_MODE.getName();
+		String property = Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.AE_MODE.getName();
 		String[] splitProperty = property.split(String.valueOf(HASH));
 
 		exceptionRule.expect(IllegalStateException.class);
