@@ -30,6 +30,7 @@ import com.avispl.symphony.dal.communicator.aver.ptz.dto.DeviceInfo;
  */
 public class AverPTZRestCommunicator extends RestCommunicator {
 	/**
+	 * {@inheritdoc}
 	 * This is a method used to authenticate
 	 */
 	@Override

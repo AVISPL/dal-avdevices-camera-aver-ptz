@@ -23,6 +23,7 @@ import org.junit.rules.ExpectedException;
 import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
 import com.avispl.symphony.api.dal.dto.monitor.ExtendedStatistics;
 import com.avispl.symphony.api.dal.error.CommandFailureException;
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.Index;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.ReplyPacket;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.StatisticsProperty;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.PayloadCategory;
@@ -34,6 +35,7 @@ import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.Backlig
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.FocusControl;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.FocusMode;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.PowerStatus;
+import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.PresetControl;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowPanTiltStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.SlowShutterStatus;
 import com.avispl.symphony.dal.communicator.aver.ptz.enums.payload.param.WBMode;
@@ -551,7 +553,7 @@ public class AverPTZCommunicatorTest {
 		Assert.assertEquals("PTZ330", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MODEL.getName()));
 		Assert.assertEquals("5310505800460", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_SERIAL_NUMBER.getName()));
 		Assert.assertEquals("0.0.0003.72", stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_FIRMWARE_VERSION.getName()));
-		int preset = Integer.parseInt(stats.get(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_LAST_PRESET_RECALLED.getName()));
+		int preset = Integer.parseInt(stats.get(Command.PRESET.getName() + HASH + Index.ONE.getName() + PresetControl.LAST_PRESET_RECALLED.getName()));
 		Assert.assertTrue(preset >= 0 && preset <= 255);
 	}
 
@@ -592,7 +594,7 @@ public class AverPTZCommunicatorTest {
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
 			String propertyName = property.getName();
-			if (propertyName.equalsIgnoreCase(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName())) {
+			if (propertyName.equalsIgnoreCase(Command.FOCUS.getName() + HASH + Index.ONE.getName() + Command.FOCUS_MODE.getName())) {
 				Assert.assertEquals(0, property.getValue());
 				return;
 			}
@@ -616,7 +618,7 @@ public class AverPTZCommunicatorTest {
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
 			String propertyName = property.getName();
-			if (propertyName.equalsIgnoreCase(Command.FOCUS.getName() + HASH + Command.FOCUS_MODE.getName())) {
+			if (propertyName.equalsIgnoreCase(Command.FOCUS.getName() + HASH + Index.ONE.getName() + Command.FOCUS_MODE.getName())) {
 				Assert.assertEquals(1, property.getValue());
 				return;
 			}
@@ -698,7 +700,7 @@ public class AverPTZCommunicatorTest {
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
 			String propertyName = property.getName();
-			if (propertyName.equalsIgnoreCase(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName())) {
+			if (propertyName.equalsIgnoreCase(Command.PAN_TILT_DRIVE.getName() + HASH + Index.ONE.getName() + Command.SLOW_PAN_TILT.getName())) {
 				Assert.assertEquals(1, (int) property.getValue());
 				return;
 			}
@@ -722,7 +724,7 @@ public class AverPTZCommunicatorTest {
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
 			String propertyName = property.getName();
-			if (propertyName.equalsIgnoreCase(Command.PAN_TILT_DRIVE.getName() + HASH + Command.SLOW_PAN_TILT.getName())) {
+			if (propertyName.equalsIgnoreCase(Command.PAN_TILT_DRIVE.getName() + HASH + Index.ONE.getName() + Command.SLOW_PAN_TILT.getName())) {
 				Assert.assertEquals(0, (int) property.getValue());
 				return;
 			}
@@ -1050,7 +1052,7 @@ public class AverPTZCommunicatorTest {
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
-			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName())) {
+			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName())) {
 				String wbMode = (String) property.getValue();
 				Assert.assertEquals(WBMode.AUTO.getName(), wbMode);
 				return;
@@ -1074,7 +1076,7 @@ public class AverPTZCommunicatorTest {
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
-			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName())) {
+			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName())) {
 				String wbMode = (String) property.getValue();
 				Assert.assertEquals(WBMode.INDOOR.getName(), wbMode);
 				return;
@@ -1098,7 +1100,7 @@ public class AverPTZCommunicatorTest {
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
-			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName())) {
+			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName())) {
 				String wbMode = (String) property.getValue();
 				Assert.assertEquals(WBMode.OUTDOOR.getName(), wbMode);
 				return;
@@ -1123,10 +1125,10 @@ public class AverPTZCommunicatorTest {
 		stats = extendedStatistic.getStatistics();
 
 		// Check contain button trigger one push WB
-		Assert.assertTrue(stats.containsKey(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_ONE_PUSH_TRIGGER.getName()));
+		Assert.assertTrue(stats.containsKey(Command.IMAGE_PROCESS.getName() + HASH + Index.TWO.getName() + Command.WB_ONE_PUSH_TRIGGER.getName()));
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
-			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName())) {
+			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName())) {
 				String wbMode = (String) property.getValue();
 				Assert.assertEquals(WBMode.ONE_PUSH_WB.getName(), wbMode);
 				return;
@@ -1151,15 +1153,15 @@ public class AverPTZCommunicatorTest {
 		stats = extendedStatistic.getStatistics();
 
 		// Check current RGain value
-		String value = stats.get(Command.IMAGE_PROCESS.getName() + HASH + Command.RGAIN_INQ.getName());
+		String value = stats.get(Command.IMAGE_PROCESS.getName() + HASH + Index.FIVE.getName() + Command.RGAIN_INQ.getName());
 		Assert.assertTrue(Integer.parseInt(value) >= 0 && Integer.parseInt(value) <= 255);
 
 		// Check current BGain value
-		value = stats.get(Command.IMAGE_PROCESS.getName() + HASH + Command.BGAIN_INQ.getName());
+		value = stats.get(Command.IMAGE_PROCESS.getName() + HASH + Index.TWO.getName() + Command.BGAIN_INQ.getName());
 		Assert.assertTrue(Integer.parseInt(value) >= 0 && Integer.parseInt(value) <= 255);
 
 		for (AdvancedControllableProperty property : advancedControllableProperties) {
-			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Command.WB_MODE.getName())) {
+			if (property.getName().equalsIgnoreCase(Command.IMAGE_PROCESS.getName() + HASH + Index.ONE.getName() + Command.WB_MODE.getName())) {
 				String wbMode = (String) property.getValue();
 				Assert.assertEquals(WBMode.MANUAL.getName(), wbMode);
 			}

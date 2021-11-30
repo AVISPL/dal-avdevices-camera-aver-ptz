@@ -15,8 +15,7 @@ public enum StatisticsProperty {
 	DEVICE_MFG("DeviceMFG"),
 	DEVICE_MODEL("DeviceModel"),
 	DEVICE_SERIAL_NUMBER("DeviceSerialNumber"),
-	DEVICE_FIRMWARE_VERSION("DeviceFirmwareVersion"),
-	DEVICE_LAST_PRESET_RECALLED("DeviceLastPresetRecalled");
+	DEVICE_FIRMWARE_VERSION("DeviceFirmwareVersion");
 
 	private final String name;
 
