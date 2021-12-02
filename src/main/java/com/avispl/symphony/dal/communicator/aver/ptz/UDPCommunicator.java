@@ -28,7 +28,6 @@ import com.avispl.symphony.dal.communicator.ConnectionStatus;
  */
 public class UDPCommunicator extends BaseDevice implements Communicator {
 	private static final String ERROR_MESSAGE_CHANGE_PROPERTIES_AFTER_INIT = "Cannot change properties after init() was called";
-	private InetAddress address;
 	private List<String> commandErrorList;
 	private List<String> commandSuccessList;
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -36,6 +35,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	private int timeout = 4000;
 	private int bufferLength = 24;
 	private DatagramSocket datagramSocket;
+	protected InetAddress address;
 	protected int port;
 	protected String login;
 	protected String password;
@@ -329,7 +329,7 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 	 */
 	protected byte[] send(byte[] data) throws Exception {
 		if (!this.isInitialized()) {
-			throw new IllegalStateException("ShellCommunicator cannot be used before init() is called");
+			throw new IllegalStateException("UDPCommunicator cannot be used before init() is called");
 		}
 
 		if (null == data) {
@@ -457,14 +457,14 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		}
 	}
 
-	private byte[] internalSend(byte[] outputData) throws IOException {
+	protected byte[] internalSend(byte[] outputData) throws IOException {
 		DatagramPacket request = new DatagramPacket(outputData, outputData.length, this.address, this.port);
 		this.write(request);
 
 		return this.read(outputData);
 	}
 
-	private void write(DatagramPacket request) throws IOException {
+	protected void write(DatagramPacket request) throws IOException {
 		this.datagramSocket.send(request);
 	}
 

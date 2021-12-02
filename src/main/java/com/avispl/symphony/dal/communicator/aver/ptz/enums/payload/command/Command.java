@@ -15,6 +15,7 @@ import java.util.Optional;
  */
 public enum Command {
 	POWER("Power", new byte[] { 0x00 }),
+	POWER_STATUS("PowerStatus", null),
 	ZOOM("ZoomControl", new byte[] { 0x07 }),
 	FOCUS("FocusControl", new byte[] { 0x08 }),
 	FOCUS_MODE("Mode", new byte[] { 0x38 }),
