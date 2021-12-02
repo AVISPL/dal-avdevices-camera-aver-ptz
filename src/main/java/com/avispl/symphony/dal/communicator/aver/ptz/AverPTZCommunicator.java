@@ -6,6 +6,7 @@ package com.avispl.symphony.dal.communicator.aver.ptz;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.CLOSE_PARENTHESIS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DEFAULT_PRESET;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.DELAY_PERIOD;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.FAKE_COMPLETION;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.HASH;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.IRIS_LEVELS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LABEL_END_EXPOSURE_VALUE;
@@ -21,6 +22,8 @@ import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.LAB
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.MINUS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.NONE_VALUE;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.PLUS;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.POWER_OFF_STATUS;
+import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.POWER_ON_STATUS;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_EXPOSURE_VALUE;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LEVEL;
 import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZConstants.RANGE_END_GAIN_LIMIT_LEVEL;
@@ -40,6 +43,7 @@ import static com.avispl.symphony.dal.communicator.aver.ptz.AverPTZUtils.convert
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,6 +134,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	private AverPTZRestCommunicator restCommunicator;
 	private DeviceInfo deviceInfo;
 	private long nextMonitoringCycleTimestamp = System.currentTimeMillis();
+	private String powerStatusMessage = null;
 
 	/**
 	 * Constructor set command error and success list to be used as well the default camera ID
@@ -262,6 +267,10 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 */
 	@Override
 	public void controlProperty(ControllableProperty controllableProperty) throws IOException {
+		if (System.currentTimeMillis() < nextMonitoringCycleTimestamp) {
+			throw new IllegalStateException("Cannot control while power is " + powerStatusMessage);
+		}
+
 		String property = controllableProperty.getProperty();
 		String value = String.valueOf(controllableProperty.getValue());
 
@@ -275,16 +284,15 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 		switch (command) {
 			case POWER: {
-				if (System.currentTimeMillis() >= nextMonitoringCycleTimestamp) {
-					if (value.equals(SWITCH_STATUS_ON)) {
-						performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.ON.getCode());
-					} else if (value.equals(SWITCH_STATUS_OFF)) {
-						performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.OFF.getCode());
-					}
-					// set next monitoring cycle timestamp plus 45s due to the device will not responsive in this time
-					nextMonitoringCycleTimestamp = System.currentTimeMillis() + DELAY_PERIOD;
-				} else {
-					throw new IllegalStateException("Cannot power on/off this time");
+				// set next monitoring cycle timestamp plus 45s due to the device will not responsive in this time
+				nextMonitoringCycleTimestamp = System.currentTimeMillis() + DELAY_PERIOD;
+
+				if (value.equals(SWITCH_STATUS_ON)) {
+					powerStatusMessage = POWER_ON_STATUS;
+					performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.ON.getCode());
+				} else if (value.equals(SWITCH_STATUS_OFF)) {
+					powerStatusMessage = POWER_OFF_STATUS;
+					performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.OFF.getCode());
 				}
 				break;
 			}
@@ -380,14 +388,12 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 				if (Objects.equals(presetControlName, PresetControl.SET.getName())) {
 					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.SET.getCode(), (byte) currentPreset);
-					// Reset to default preset value each time set a preset
-					currentPreset = -1;
 				} else if (Objects.equals(presetControlName, PresetControl.RECALL.getName())) {
 					performControl(PayloadCategory.CAMERA, Command.PRESET, PresetControl.RECALL.getCode(), (byte) currentPreset);
-					// Reset to default preset value each time recall a preset
-					currentPreset = -1;
 				}
 
+				// Reset to default preset value each time set/recall a preset
+				currentPreset = -1;
 				break;
 			}
 			default: {
@@ -426,10 +432,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		final List<AdvancedControllableProperty> advancedControllableProperties = new ArrayList<>();
 		final StringBuilder errorMessages = new StringBuilder();
 
-		if (System.currentTimeMillis() < nextMonitoringCycleTimestamp) {
-			throw new IllegalStateException("Monitoring pause for power on/off");
-		}
-
 		tryParseIntAdapterProperties(errorMessages);
 		checkOutOfRange(errorMessages);
 
@@ -451,8 +453,14 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 		// Monitoring capabilities
 		populateMonitorCapabilities(stats);
-		// Control capabilities
-		populateControlCapabilities(stats, advancedControllableProperties);
+
+		if (System.currentTimeMillis() < nextMonitoringCycleTimestamp) {
+			// If in monitoring cycle -> do not render controllable properties
+			stats.put(Command.POWER_STATUS.getName(), powerStatusMessage);
+		} else {
+			// Control capabilities
+			populateControlCapabilities(stats, advancedControllableProperties);
+		}
 
 		extStats.setStatistics(stats);
 		extStats.setControllableProperties(advancedControllableProperties);
@@ -1430,6 +1438,27 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 	//--------------------------------------------------------------------------------------------------------------------------------
 	//endregion
+
+	/**
+	 * {@inheritdoc}
+	 * This method is used to send command to device
+	 *
+	 * @param outputData This is a byte array of command to be sent
+	 * @return byte[] This returns the response receive from device
+	 */
+	@Override
+	protected byte[] internalSend(byte[] outputData) throws IOException {
+		DatagramPacket request = new DatagramPacket(outputData, outputData.length, this.address, this.port);
+		this.write(request);
+
+		// If send command power off -> device return nothing -> no need wait to receive
+		if (Objects.equals(outputData[11], Command.POWER.getCode()[0]) && Objects.equals(outputData[12], PowerStatus.OFF.getCode())) {
+			FAKE_COMPLETION[7] = outputData[7]; // Copy sequence number
+			return FAKE_COMPLETION;
+		}
+
+		return this.read(outputData);
+	}
 
 	/**
 	 * {@inheritdoc}

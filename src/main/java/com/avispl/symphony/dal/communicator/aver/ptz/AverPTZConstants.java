@@ -46,10 +46,6 @@ public class AverPTZConstants {
 	public static final String LABEL_END_GAIN_LEVEL = "48";
 	public static final float RANGE_START_GAIN_LEVEL = 0F;
 	public static final float RANGE_END_GAIN_LEVEL = 48F;
-	public static final List<String> SHUTTER_VALUES = new ArrayList<>(
-			Arrays.asList("1/32K", "1/16K", "1/8K", "1/4K", "1/2K", "1/1K", "1/480", "1/240", "1/120", "1/60", "1/30", "1/20", "1/10", "1/5", "1/2", "1/1"));
-	public static final List<String> IRIS_LEVELS = new ArrayList<>(
-			Arrays.asList("0", "F14", "F11", "F8.0", "F6.8", "F5.6", "F4.8", "F4.0", "F3.4", "F2.8", "F2.4", "F2.0", "F1.8", "F1.6"));
 	public static final String SWITCH_STATUS_ON = "1";
 	public static final String SWITCH_STATUS_OFF = "0";
 	public static final long DELAY_PERIOD = 45000;
@@ -58,4 +54,12 @@ public class AverPTZConstants {
 	public static final String NONE_VALUE = "None";
 	public static final String CLOSE_PARENTHESIS = "\\)";
 	public static final String DEFAULT_PRESET = "Please select a preset";
+	public static final String POWER_ON_STATUS = "Turning on...";
+	public static final String POWER_OFF_STATUS = "Turning off...";
+
+	protected static final byte[] FAKE_COMPLETION = new byte[] { 0x01, 0x11, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, (byte) 0x90, 0x51, (byte) 0xFF };
+	protected static final List<String> SHUTTER_VALUES = new ArrayList<>(
+			Arrays.asList("1/32K", "1/16K", "1/8K", "1/4K", "1/2K", "1/1K", "1/480", "1/240", "1/120", "1/60", "1/30", "1/20", "1/10", "1/5", "1/2", "1/1"));
+	protected static final List<String> IRIS_LEVELS = new ArrayList<>(
+			Arrays.asList("0", "F14", "F11", "F8.0", "F6.8", "F5.6", "F4.8", "F4.0", "F3.4", "F2.8", "F2.4", "F2.0", "F1.8", "F1.6"));
 }
