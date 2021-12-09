@@ -59,6 +59,7 @@ import java.util.Optional;
 
 import org.springframework.util.CollectionUtils;
 
+import com.avispl.symphony.api.common.error.ResourceConflictException;
 import com.avispl.symphony.api.dal.control.Controller;
 import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
 import com.avispl.symphony.api.dal.dto.control.ControllableProperty;
@@ -284,9 +285,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 		switch (command) {
 			case POWER: {
-				// set next monitoring cycle timestamp plus 45s due to the device will not responsive in this time
-				nextMonitoringCycleTimestamp = System.currentTimeMillis() + DELAY_PERIOD;
-
 				if (value.equals(SWITCH_STATUS_ON)) {
 					powerStatusMessage = POWER_ON_STATUS;
 					performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.ON.getCode());
@@ -294,6 +292,8 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 					powerStatusMessage = POWER_OFF_STATUS;
 					performControl(PayloadCategory.CAMERA, Command.POWER, PowerStatus.OFF.getCode());
 				}
+				// set next monitoring cycle timestamp plus 45s due to the device will not responsive in this time
+				nextMonitoringCycleTimestamp = System.currentTimeMillis() + DELAY_PERIOD;
 				break;
 			}
 			case ZOOM: {
@@ -458,6 +458,12 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			// If in monitoring cycle -> do not render controllable properties
 			stats.put(Command.POWER_STATUS.getName(), powerStatusMessage);
 		} else {
+			// Reset sequence number to 0 if it reaches the max value of integer
+			// (need to check it before all command can be performed)
+			if (sequenceNumber == Integer.MAX_VALUE - Command.values().length) {
+				sequenceNumber = 0;
+			}
+
 			// Control capabilities
 			populateControlCapabilities(stats, advancedControllableProperties);
 		}
@@ -543,6 +549,9 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param stats is the map that store all statistics
 	 */
 	private void populateMonitorCapabilities(Map<String, String> stats) {
+		if (deviceInfo == null) {
+			throw new ResourceConflictException("Cannot get device information from Rest API");
+		}
 		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MFG.getName(), deviceInfo.getDeviceMfg());
 		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MODEL.getName(), deviceInfo.getDeviceModel());
 		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_SERIAL_NUMBER.getName(), deviceInfo.getDeviceSerialNumber());
@@ -1453,7 +1462,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 
 		// If send command power off -> device return nothing -> no need wait to receive
 		if (Objects.equals(outputData[11], Command.POWER.getCode()[0]) && Objects.equals(outputData[12], PowerStatus.OFF.getCode())) {
-			FAKE_COMPLETION[7] = outputData[7]; // Copy sequence number
+			System.arraycopy(outputData, 4, FAKE_COMPLETION, 4, 4); // Copy sequence number
 			return FAKE_COMPLETION;
 		}
 
