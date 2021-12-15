@@ -59,7 +59,6 @@ import java.util.Optional;
 
 import org.springframework.util.CollectionUtils;
 
-import com.avispl.symphony.api.common.error.ResourceConflictException;
 import com.avispl.symphony.api.dal.control.Controller;
 import com.avispl.symphony.api.dal.dto.control.AdvancedControllableProperty;
 import com.avispl.symphony.api.dal.dto.control.ControllableProperty;
@@ -432,23 +431,40 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		final List<AdvancedControllableProperty> advancedControllableProperties = new ArrayList<>();
 		final StringBuilder errorMessages = new StringBuilder();
 
-		tryParseIntAdapterProperties(errorMessages);
-		checkOutOfRange(errorMessages);
-
-		if (errorMessages.toString().length() > 0) {
-			throw new IllegalArgumentException(errorMessages.toString());
+		if (sequenceNumber == Integer.MAX_VALUE - Command.values().length) {
+			// If sequence number reach the max value of integer before all commands in this adapter will be executed-> Reset to default value
+			sequenceNumber = 0;
 		}
 
 		if (restCommunicator == null) {
 			try {
 				initAverRestCommunicator();
+			} catch (Exception e) {
+				if (this.logger.isErrorEnabled()) {
+					this.logger.error("error: Cannot init Rest communicator: " + this.host + " port: " + this.port);
+				}
+				restCommunicator.destroy();
+				restCommunicator = null;
+				throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data, please check again the host/port", e);
+			}
+		}
+
+		if (deviceInfo == null) {
+			try {
 				deviceInfo = this.restCommunicator.getDeviceInfo();
 			} catch (Exception e) {
 				if (this.logger.isErrorEnabled()) {
 					this.logger.error("error: Cannot get data from Rest communicator: " + this.host + " port: " + this.port);
 				}
-				throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data", e);
+				throw new ResourceNotReachableException("Cannot get device information from Rest API, please check again the username/password or connection to device", e);
 			}
+		}
+
+		tryParseIntAdapterProperties(errorMessages);
+		checkOutOfRange(errorMessages);
+
+		if (errorMessages.toString().length() > 0) {
+			throw new IllegalArgumentException(errorMessages.toString());
 		}
 
 		// Monitoring capabilities
@@ -549,9 +565,6 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param stats is the map that store all statistics
 	 */
 	private void populateMonitorCapabilities(Map<String, String> stats) {
-		if (deviceInfo == null) {
-			throw new ResourceConflictException("Cannot get device information from Rest API");
-		}
 		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MFG.getName(), deviceInfo.getDeviceMfg());
 		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_MODEL.getName(), deviceInfo.getDeviceModel());
 		stats.put(StatisticsProperty.DEVICE_INFORMATION.getName() + HASH + StatisticsProperty.DEVICE_SERIAL_NUMBER.getName(), deviceInfo.getDeviceSerialNumber());
@@ -719,8 +732,8 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @param param is the param of command to be sent
 	 */
 	public void performControl(PayloadCategory payloadCategory, Command command, byte... param) {
-		byte[] request = new byte[0];
-		byte[] response = new byte[0];
+		byte[] request;
+		byte[] response;
 
 		try {
 			int currentSeqNum = ++sequenceNumber;
@@ -731,7 +744,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 			digestResponse(response, currentSeqNum, CommandType.COMMAND, null);
 		} catch (Exception e) {
 			this.logger.error("error during command " + command.getName() + " send", e);
-			throw new CommandFailureException(this.getHost(), getHexByteString(request), getHexByteString(response), e);
+			throw new IllegalStateException("Error while sending command " + command.getName());
 		}
 	}
 	//endregion

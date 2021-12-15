@@ -347,6 +347,9 @@ public class UDPCommunicator extends BaseDevice implements Communicator {
 		try {
 			response = this.send(data, true);
 		} finally {
+			// Destroy channel socket so if change the adapter properties, commproxy will not hold the old connection
+			// And socket can bind port again if try to control immediately after change the adapter properties
+			this.destroyChannel();
 			writeLock.unlock();
 		}
 
