@@ -545,7 +545,7 @@ public class AverPTZCommunicatorTest {
 	 */
 	@Test
 	@Category(RealDeviceTest.class)
-	public void testAverPTZCommunicatorDeviceInfo() {
+	public void testAverPTZCommunicatorDeviceInfo() throws Exception {
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		stats = extendedStatistic.getStatistics();
 
@@ -563,7 +563,7 @@ public class AverPTZCommunicatorTest {
 	 */
 	@Test
 	@Category(RealDeviceTest.class)
-	public void testAverPTZCommunicatorPowerStatus() {
+	public void testAverPTZCommunicatorPowerStatus() throws Exception {
 		// Merge test power on/off into 1 test case because if we turn off -> on, it needs to wait about 1min to reboot -> cannot test other testcases.
 		extendedStatistic = (ExtendedStatistics) averPTZCommunicator.getMultipleStatistics().get(0);
 		advancedControllableProperties = extendedStatistic.getControllableProperties();
