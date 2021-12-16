@@ -425,7 +425,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 	 * @return List<Statistics> This return the list of statistics.
 	 */
 	@Override
-	public List<Statistics> getMultipleStatistics() {
+	public List<Statistics> getMultipleStatistics() throws Exception {
 		final ExtendedStatistics extStats = new ExtendedStatistics();
 		final Map<String, String> stats = new HashMap<>();
 		final List<AdvancedControllableProperty> advancedControllableProperties = new ArrayList<>();
@@ -437,16 +437,7 @@ public class AverPTZCommunicator extends UDPCommunicator implements Controller, 
 		}
 
 		if (restCommunicator == null) {
-			try {
-				initAverRestCommunicator();
-			} catch (Exception e) {
-				if (this.logger.isErrorEnabled()) {
-					this.logger.error("error: Cannot init Rest communicator: " + this.host + " port: " + this.port);
-				}
-				restCommunicator.destroy();
-				restCommunicator = null;
-				throw new ResourceNotReachableException("Aver rest communicator not reachable for getting data, please check again the host/port", e);
-			}
+			initAverRestCommunicator();
 		}
 
 		if (deviceInfo == null) {
