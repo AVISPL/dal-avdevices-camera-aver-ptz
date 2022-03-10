@@ -6,7 +6,7 @@
 
   <groupId>com.avispl.symphony.dal.device.aver.ptz</groupId>
   <artifactId>symphony-dal-communicator-aver-ptz</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
